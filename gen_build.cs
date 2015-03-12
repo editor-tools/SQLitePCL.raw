@@ -50,23 +50,6 @@ public static class projects
 	{
 		items_sqlite3.Add(new config_sqlite3 { env="winxp", cpu="x86", dll=dyn });
 		items_sqlite3.Add(new config_sqlite3 { env="winxp", cpu="x64", dll=dyn });
-
-		items_sqlite3.Add(new config_sqlite3 { env="winrt80", cpu="arm", dll=dyn });
-		items_sqlite3.Add(new config_sqlite3 { env="winrt80", cpu="x64", dll=dyn });
-		items_sqlite3.Add(new config_sqlite3 { env="winrt80", cpu="x86", dll=dyn });
-
-		items_sqlite3.Add(new config_sqlite3 { env="winrt81", cpu="arm", dll=dyn });
-		items_sqlite3.Add(new config_sqlite3 { env="winrt81", cpu="x64", dll=dyn });
-		items_sqlite3.Add(new config_sqlite3 { env="winrt81", cpu="x86", dll=dyn });
-
-		items_sqlite3.Add(new config_sqlite3 { env="wp80", cpu="arm", dll=dyn });
-		items_sqlite3.Add(new config_sqlite3 { env="wp80", cpu="x86", dll=dyn });
-
-		items_sqlite3.Add(new config_sqlite3 { env="wp81_rt", cpu="arm", dll=dyn });
-		items_sqlite3.Add(new config_sqlite3 { env="wp81_rt", cpu="x86", dll=dyn });
-
-		items_sqlite3.Add(new config_sqlite3 { env="wp81_sl", cpu="arm", dll=dyn });
-		items_sqlite3.Add(new config_sqlite3 { env="wp81_sl", cpu="x86", dll=dyn });
 	}
 
 	private static void init_cppinterop(bool dyn)
@@ -74,22 +57,6 @@ public static class projects
 		items_cppinterop.Add(new config_cppinterop { env="net45", cpu="x64", dll=dyn });
 		items_cppinterop.Add(new config_cppinterop { env="net45", cpu="x86", dll=dyn });
 
-		items_cppinterop.Add(new config_cppinterop { env="winrt80", cpu="arm", dll=dyn });
-		items_cppinterop.Add(new config_cppinterop { env="winrt80", cpu="x64", dll=dyn });
-		items_cppinterop.Add(new config_cppinterop { env="winrt80", cpu="x86", dll=dyn });
-
-		items_cppinterop.Add(new config_cppinterop { env="winrt81", cpu="arm", dll=dyn });
-		items_cppinterop.Add(new config_cppinterop { env="winrt81", cpu="x64", dll=dyn });
-		items_cppinterop.Add(new config_cppinterop { env="winrt81", cpu="x86", dll=dyn });
-
-		items_cppinterop.Add(new config_cppinterop { env="wp80", cpu="arm", dll=dyn });
-		items_cppinterop.Add(new config_cppinterop { env="wp80", cpu="x86", dll=dyn });
-
-		items_cppinterop.Add(new config_cppinterop { env="wp81_rt", cpu="arm", dll=dyn });
-		items_cppinterop.Add(new config_cppinterop { env="wp81_rt", cpu="x86", dll=dyn });
-
-		items_cppinterop.Add(new config_cppinterop { env="wp81_sl", cpu="arm", dll=dyn });
-		items_cppinterop.Add(new config_cppinterop { env="wp81_sl", cpu="x86", dll=dyn });
 	}
 
 	private static void init_pcl_bait()
@@ -105,7 +72,6 @@ public static class projects
 		// TODO it is not confirmed that any other environments will work here.
 		// for now that's fine.
 
-		items_tests.Add(new config_tests { env="winrt80", pcl="profile78" });
 		items_tests.Add(new config_tests { env="net45", pcl="profile78" });
 	}
 
@@ -121,56 +87,16 @@ public static class projects
 		items_pcl.Add(new config_pcl { env="net45", api="cppinterop", what="sqlite3", cpu="x86", dll=dyn});
 		items_pcl.Add(new config_pcl { env="net45", api="cppinterop", what="sqlite3", cpu="x64", dll=dyn});
 
-		items_pcl.Add(new config_pcl { env="winrt80", api="cppinterop", what="sqlite3", cpu="arm", dll=dyn});
-		items_pcl.Add(new config_pcl { env="winrt80", api="cppinterop", what="sqlite3", cpu="x64", dll=dyn});
-		items_pcl.Add(new config_pcl { env="winrt80", api="cppinterop", what="sqlite3", cpu="x86", dll=dyn});
-
-		items_pcl.Add(new config_pcl { env="winrt81", api="cppinterop", what="sqlite3", cpu="arm", dll=dyn});
-		items_pcl.Add(new config_pcl { env="winrt81", api="cppinterop", what="sqlite3", cpu="x64", dll=dyn});
-		items_pcl.Add(new config_pcl { env="winrt81", api="cppinterop", what="sqlite3", cpu="x86", dll=dyn});
-
-		items_pcl.Add(new config_pcl { env="wp80", api="cppinterop", what="sqlite3", cpu="arm", dll=dyn});
-		items_pcl.Add(new config_pcl { env="wp80", api="cppinterop", what="sqlite3", cpu="x86", dll=dyn});
-
-		items_pcl.Add(new config_pcl { env="wp81_rt", api="cppinterop", what="sqlite3", cpu="arm", dll=dyn});
-		items_pcl.Add(new config_pcl { env="wp81_rt", api="cppinterop", what="sqlite3", cpu="x86", dll=dyn});
-
-		items_pcl.Add(new config_pcl { env="wp81_sl", api="cppinterop", what="sqlite3", cpu="arm", dll=dyn});
-		items_pcl.Add(new config_pcl { env="wp81_sl", api="cppinterop", what="sqlite3", cpu="x86", dll=dyn});
 	}
 
 	private static void init_pcl_pinvoke()
 	{
-		items_pcl.Add(new config_pcl { env="android", api="pinvoke", what="sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="android", api="pinvoke", what="packaged_sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="android", api="pinvoke", what="packaged_sqlcipher", cpu="anycpu"});
-
-		items_pcl.Add(new config_pcl { env="ios", api="pinvoke", what="sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="ios", api="pinvoke", what="packaged_sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="ios", api="pinvoke", what="packaged_sqlcipher", cpu="anycpu"});
-
-		items_pcl.Add(new config_pcl { env="unified", api="pinvoke", what="sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="unified", api="pinvoke", what="packaged_sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="unified", api="pinvoke", what="packaged_sqlcipher", cpu="anycpu"});
 
 		items_pcl.Add(new config_pcl { env="net45", api="pinvoke", what="sqlite3", cpu="anycpu"});
 		items_pcl.Add(new config_pcl { env="net45", api="pinvoke", what="sqlite3", cpu="x86"});
 		items_pcl.Add(new config_pcl { env="net45", api="pinvoke", what="sqlite3", cpu="x64"});
 		items_pcl.Add(new config_pcl { env="net45", api="pinvoke", what="packaged_sqlite3", cpu="anycpu"});
 
-		items_pcl.Add(new config_pcl { env="winrt80", api="pinvoke", what="sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="winrt80", api="pinvoke", what="sqlite3", cpu="arm"});
-		items_pcl.Add(new config_pcl { env="winrt80", api="pinvoke", what="sqlite3", cpu="x64"});
-		items_pcl.Add(new config_pcl { env="winrt80", api="pinvoke", what="sqlite3", cpu="x86"});
-
-		items_pcl.Add(new config_pcl { env="winrt81", api="pinvoke", what="sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="winrt81", api="pinvoke", what="sqlite3", cpu="arm"});
-		items_pcl.Add(new config_pcl { env="winrt81", api="pinvoke", what="sqlite3", cpu="x64"});
-		items_pcl.Add(new config_pcl { env="winrt81", api="pinvoke", what="sqlite3", cpu="x86"});
-
-		items_pcl.Add(new config_pcl { env="wp81_rt", api="pinvoke", what="sqlite3", cpu="anycpu"});
-		items_pcl.Add(new config_pcl { env="wp81_rt", api="pinvoke", what="sqlite3", cpu="arm"});
-		items_pcl.Add(new config_pcl { env="wp81_rt", api="pinvoke", what="sqlite3", cpu="x86"});
 
 #if not
 		items_pcl.Add(new config_pcl { env="wp81_sl", api="pinvoke", what="sqlite3", cpu="anycpu"});
@@ -397,20 +323,6 @@ public class config_cppinterop : config_info
 	public void get_products(List<string> a)
 	{
 		add_product(a, "SQLitePCL.cppinterop.dll");
-		switch (env)
-		{
-			case "wp80":
-				add_product(a, "SQLitePCL.cppinterop.winmd");
-				break;
-
-			case "winrt80":
-			case "winrt81":
-			case "wp81_rt":
-			case "wp81_sl":
-				add_product(a, "SQLitePCL.cppinterop.pri");
-				add_product(a, "SQLitePCL.cppinterop.winmd");
-				break;
-		}
 	}
 
 	private string area()
@@ -568,24 +480,8 @@ public class config_pcl : config_info
 		// TODO maybe I should just use these names?
 		switch (env)
 		{
-			case "ios":
-				return "MonoTouch";
-			case "unified":
-				return "Xamarin.iOS10";
-			case "android":
-				return "MonoAndroid";
 			case "net45":
 				return "net45";
-			case "wp80":
-				return "wp8";
-			case "wp81_sl":
-				return "wp81";
-			case "wp81_rt":
-				return "wpa81";
-			case "winrt80":
-				return "netcore45";
-			case "winrt81":
-				return "netcore451";
 			default:
 				throw new Exception(env);
 		}
@@ -650,15 +546,6 @@ public class config_pcl : config_info
 	public void get_products(List<string> a)
 	{
 		add_product(a, "SQLitePCL.raw.dll");
-		switch (env)
-		{
-			case "winrt80":
-			case "winrt81":
-			case "wp81_rt":
-			//case "wp81_sl":
-				add_product(a, "SQLitePCL.raw.pri");
-				break;
-		}
 
 		if (is_cppinterop())
 		{
@@ -742,12 +629,6 @@ public static class gen
 	private const string GUID_CPP = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}";
 	private const string GUID_FOLDER = "{2150E333-8FDC-42A3-9474-1A3956D46DE8}";
 	private const string GUID_PCL = "{786C830F-07A1-408B-BD7F-6EE04809D6DB}";
-	private const string GUID_IOS = "{6BC8ED88-2882-458C-8E55-DFD12B67127B}";
-	private const string GUID_UNIFIED = "{FEACFBD2-3405-455C-9665-78FE426C6842}";
-	private const string GUID_ANDROID = "{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}";
-	private const string GUID_WINRT = "{BC8A1FFA-BEE3-4634-8014-F334798102B3}";
-	private const string GUID_WP8 = "{C089C8C0-30E0-4E22-80C0-CE093F111A43}";
-	private const string GUID_WP81RT = "{76F1466A-8B6D-4E39-A767-685A06062A39}";
 	private const string GUID_TEST = "{3AC096D0-A1C2-E12C-1390-A8335801FDAB}";
 
 	private static void write_reference(XmlWriter f, string s)
@@ -897,31 +778,6 @@ public static class gen
 			{
 				case "winxp":
 					break;
-				case "winrt80":
-					f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					f.WriteElementString("WindowsAppContainer", "true");
-					f.WriteElementString("AppContainerApplication", "true");
-					break;
-				case "winrt81":
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("WindowsAppContainer", "true");
-					f.WriteElementString("AppContainerApplication", "true");
-					break;
-				case "wp80":
-					f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					break;
-				case "wp81_rt":
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("AppContainerApplication", "true");
-					f.WriteElementString("ApplicationType", "Windows Phone");
-					f.WriteElementString("ApplicationTypeRevision", "8.1");
-					break;
-				case "wp81_sl":
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("AppContainerApplication", "true");
-					f.WriteElementString("ApplicationType", "Windows Phone Silverlight");
-					f.WriteElementString("ApplicationTypeRevision", "8.1");
-					break;
 			}
 
 			f.WriteEndElement(); // PropertyGroup
@@ -946,21 +802,6 @@ public static class gen
 				case "winxp":
 					f.WriteElementString("PlatformToolset", "v110_xp");
 					break;
-				case "winrt80":
-					f.WriteElementString("PlatformToolset", "v110");
-					break;
-				case "winrt81":
-					f.WriteElementString("PlatformToolset", "v120");
-					break;
-				case "wp80":
-					f.WriteElementString("PlatformToolset", "v110_wp80");
-					break;
-				case "wp81_rt":
-					f.WriteElementString("PlatformToolset", "v120_wp81");
-					break;
-				case "wp81_sl":
-					f.WriteElementString("PlatformToolset", "v120");
-					break;
 			}
 
 			f.WriteEndElement(); // PropertyGroup
@@ -969,34 +810,11 @@ public static class gen
 			{
 				case "winxp":
 					break;
-				case "winrt80":
-				case "winrt81":
-				case "wp80":
-				case "wp81_rt":
-				case "wp81_sl":
-					f.WriteStartElement("ItemDefinitionGroup");
-					f.WriteStartElement("ClCompile");
-					write_cpp_define(f, "SQLITE_OS_WINRT");
-					f.WriteEndElement(); // ClCompile
-					f.WriteEndElement(); // ItemDefinitionGroup
-					break;
 			}
 
 			switch (cfg.env)
 			{
 				case "winxp":
-					break;
-				case "winrt80":
-				case "winrt81":
-					break;
-				case "wp80":
-				case "wp81_rt":
-				case "wp81_sl":
-					f.WriteStartElement("ItemDefinitionGroup");
-					f.WriteStartElement("ClCompile");
-					write_cpp_define(f, "SQLITE_WIN32_FILEMAPPING_API=1");
-					f.WriteEndElement(); // ClCompile
-					f.WriteEndElement(); // ItemDefinitionGroup
 					break;
 			}
 
@@ -1108,11 +926,6 @@ public static class gen
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
 			switch (cfg.env)
 			{
-				case "winrt81":
-				case "wp81_rt":
-				case "wp81_sl":
-					f.WriteAttributeString("ToolsVersion", "12.0");
-					break;
 				default:
 					f.WriteAttributeString("ToolsVersion", "4.0");
 					break;
@@ -1147,40 +960,6 @@ public static class gen
 					f.WriteElementString("Keyword", "ManagedCProj");
 					f.WriteElementString("TargetFrameworkVersion", "v4.5");
 					break;
-				case "winrt80":
-					f.WriteElementString("Keyword", "Win32Proj");
-					f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					f.WriteElementString("WindowsAppContainer", "true");
-					f.WriteElementString("AppContainerApplication", "true");
-					f.WriteElementString("ApplicationType", "Windows Store");
-					f.WriteElementString("ApplicationTypeRevision", "8.0");
-					break;
-				case "winrt81":
-					f.WriteElementString("Keyword", "Win32Proj");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("WindowsAppContainer", "true");
-					f.WriteElementString("AppContainerApplication", "true");
-					f.WriteElementString("ApplicationType", "Windows Store");
-					f.WriteElementString("ApplicationTypeRevision", "8.1");
-					break;
-				case "wp80":
-					f.WriteElementString("WinMDAssembly", "true");
-					f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					break;
-				case "wp81_rt":
-					f.WriteElementString("Keyword", "Win32Proj");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("AppContainerApplication", "true");
-					f.WriteElementString("ApplicationType", "Windows Phone");
-					f.WriteElementString("ApplicationTypeRevision", "8.1");
-					break;
-				case "wp81_sl":
-					f.WriteElementString("Keyword", "Win32Proj");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("AppContainerApplication", "true");
-					f.WriteElementString("ApplicationType", "Windows Phone Silverlight");
-					f.WriteElementString("ApplicationTypeRevision", "8.1");
-					break;
 			}
 
 			f.WriteEndElement(); // PropertyGroup
@@ -1198,21 +977,6 @@ public static class gen
 					f.WriteElementString("PlatformToolset", "v110");
 					f.WriteElementString("CLRSupport", "true");
 					break;
-				case "winrt80":
-					f.WriteElementString("PlatformToolset", "v110");
-					break;
-				case "winrt81":
-					f.WriteElementString("PlatformToolset", "v120");
-					break;
-				case "wp80":
-					f.WriteElementString("PlatformToolset", "v110_wp80");
-					break;
-				case "wp81_rt":
-					f.WriteElementString("PlatformToolset", "v120_wp81");
-					break;
-				case "wp81_sl":
-					f.WriteElementString("PlatformToolset", "v120");
-					break;
 			}
 
 			f.WriteEndElement(); // PropertyGroup
@@ -1227,70 +991,18 @@ public static class gen
 					f.WriteEndElement(); // ClCompile
 					f.WriteEndElement(); // ItemDefinitionGroup
 					break;
-				case "winrt80":
-					f.WriteStartElement("ItemDefinitionGroup");
-					f.WriteStartElement("ClCompile");
-					write_cpp_define(f, "_WINRT_DLL");
-					f.WriteElementString("AdditionalUsingDirectories", "$(WindowsSDK_WindowsMetaData);$(AdditionalUsingDirectories)");
-					f.WriteEndElement(); // ClCompile
-					f.WriteStartElement("Link");
-					f.WriteElementString("AdditionalDependencies", "runtimeobject.lib;%(AdditionalDependencies)");
-					f.WriteEndElement(); // Link
-					f.WriteEndElement(); // ItemDefinitionGroup
-					break;
-				case "winrt81":
-					f.WriteStartElement("ItemDefinitionGroup");
-					f.WriteStartElement("ClCompile");
-					write_cpp_define(f, "_WINRT_DLL");
-					f.WriteElementString("AdditionalUsingDirectories", "$(WindowsSDK_WindowsMetaData);$(AdditionalUsingDirectories)");
-					f.WriteEndElement(); // ClCompile
-					f.WriteStartElement("Link");
-					f.WriteElementString("AdditionalDependencies", "runtimeobject.lib;%(AdditionalDependencies)");
-					f.WriteEndElement(); // Link
-					f.WriteEndElement(); // ItemDefinitionGroup
-					break;
-				case "wp80":
-					f.WriteStartElement("ItemDefinitionGroup");
-					f.WriteStartElement("ClCompile");
-					write_cpp_define(f, "_WINRT_DLL");
-					f.WriteElementString("AdditionalUsingDirectories", "$(WindowsSDK_WindowsMetaData);$(AdditionalUsingDirectories)");
-					f.WriteElementString("CompileAsWinRT", "true");
-					f.WriteEndElement(); // ClCompile
-					f.WriteStartElement("Link");
-					f.WriteElementString("GenerateWindowsMetadata", "true");
-					f.WriteElementString("IgnoreSpecificDefaultLibraries", "ole32.lib;%(IgnoreSpecificDefaultLibraries)");
-					f.WriteElementString("AdditionalDependencies", "WindowsPhoneCore.lib;runtimeobject.lib;PhoneAppModelHost.lib;%(AdditionalDependencies)");
-					f.WriteEndElement(); // Link
-					f.WriteEndElement(); // ItemDefinitionGroup
-					break;
-				case "wp81_rt":
-					f.WriteStartElement("ItemDefinitionGroup");
-					f.WriteStartElement("ClCompile");
-					write_cpp_define(f, "_WINRT_DLL");
-					f.WriteEndElement(); // ClCompile
-					f.WriteStartElement("Link");
-					f.WriteEndElement(); // Link
-					f.WriteEndElement(); // ItemDefinitionGroup
-					break;
-				case "wp81_sl":
-					f.WriteStartElement("ItemDefinitionGroup");
-					f.WriteStartElement("ClCompile");
-					write_cpp_define(f, "_WINRT_DLL");
-					f.WriteEndElement(); // ClCompile
-					f.WriteStartElement("Link");
-					f.WriteEndElement(); // Link
-					f.WriteEndElement(); // ItemDefinitionGroup
-					break;
 			}
 
 			f.WriteStartElement("PropertyGroup");
 			f.WriteAttributeString("Condition", string.Format(" '$(Configuration)' == 'Debug' "));
 			f.WriteElementString("UseDebugLibraries", "true");
+			f.WriteElementString("LinkKeyFile", @"..\key.snk");
 			f.WriteEndElement(); // PropertyGroup
 
 			f.WriteStartElement("PropertyGroup");
 			f.WriteAttributeString("Condition", string.Format(" '$(Configuration)' == 'Release' "));
 			f.WriteElementString("UseDebugLibraries", "false");
+			f.WriteElementString("LinkKeyFile", @"..\key.snk");
 			f.WriteEndElement(); // PropertyGroup
 
 			f.WriteStartElement("Import");
@@ -1355,29 +1067,12 @@ public static class gen
 
 			switch (cfg.env)
 			{
-				case "winrt80":
-					break;
-				case "winrt81":
-					break;
-				case "wp81_rt":
-					break;
 				case "net45":
 					f.WriteStartElement("ItemGroup");
 					f.WriteStartElement("Reference");
 					f.WriteAttributeString("Include", "System");
 					f.WriteEndElement(); // Reference
 					f.WriteEndElement(); // ItemGroup
-					break;
-				case "wp80":
-					f.WriteStartElement("ItemGroup");
-					f.WriteStartElement("Reference");
-					f.WriteAttributeString("Include", "platform.winmd");
-					f.WriteElementString("IsWinMDFile", "true");
-					f.WriteElementString("Private", "false");
-					f.WriteEndElement(); // Reference
-					f.WriteEndElement(); // ItemGroup
-					break;
-				case "wp81_sl":
 					break;
 			}
 
@@ -1402,20 +1097,7 @@ public static class gen
 
 			switch (cfg.env)
 			{
-				case "winrt80":
-					break;
-				case "winrt81":
-					break;
-				case "wp81_rt":
-					break;
 				case "net45":
-					break;
-				case "wp80":
-					f.WriteStartElement("Import");
-					f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Microsoft\\WindowsPhone\\v$(TargetPlatformVersion)\\Microsoft.Cpp.WindowsPhone.$(TargetPlatformVersion).targets");
-					f.WriteEndElement(); // Import
-					break;
-				case "wp81_sl":
 					break;
 			}
 
@@ -1487,11 +1169,6 @@ public static class gen
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
 			switch (cfg.env)
 			{
-				case "winrt81":
-				case "wp81_rt":
-				case "wp81_sl":
-					f.WriteAttributeString("ToolsVersion", "12.0");
-					break;
 				default:
 					f.WriteAttributeString("ToolsVersion", "4.0");
 					break;
@@ -1520,31 +1197,6 @@ public static class gen
 			}
 			else
 			{
-				switch (cfg.env)
-				{
-					case "ios":
-						write_project_type_guids(f, GUID_IOS, GUID_CSHARP);
-						break;
-					case "unified":
-						write_project_type_guids(f, GUID_UNIFIED, GUID_CSHARP);
-						break;
-					case "android":
-						write_project_type_guids(f, GUID_ANDROID, GUID_CSHARP);
-						break;
-					case "winrt80":
-					case "winrt81":
-						write_project_type_guids(f, GUID_WINRT, GUID_CSHARP);
-						break;
-					case "wp80":
-						write_project_type_guids(f, GUID_WP8, GUID_CSHARP);
-						break;
-					case "wp81_rt":
-						write_project_type_guids(f, GUID_WP81RT, GUID_CSHARP);
-						break;
-					case "wp81_sl":
-						write_project_type_guids(f, GUID_WP8, GUID_CSHARP);
-						break;
-				}
 			}
 
 			f.WriteStartElement("Configuration");
@@ -1563,6 +1215,8 @@ public static class gen
 			f.WriteElementString("OutputType", "Library");
 			f.WriteElementString("RootNamespace", "SQLitePCL");
 			f.WriteElementString("AssemblyName", "SQLitePCL.raw"); // match the name in get_products()
+			f.WriteElementString("SignAssembly", "True");
+			f.WriteElementString("AssemblyOriginatorKeyFile", "../key.snk");
 
 			List<string> defines = new List<string>();
 
@@ -1576,66 +1230,9 @@ public static class gen
 				case "profile259":
 					f.WriteElementString("TargetFrameworkVersion", "v4.5");
 					break;
-				case "ios":
-					defines.Add("PLATFORM_IOS");
-					break;
-				case "unified":
-					defines.Add("PLATFORM_UNIFIED");
-					break;
-				case "android":
-					defines.Add("__MOBILE__");
-					defines.Add("__ANDROID__");
-					f.WriteElementString("AndroidUseLatestPlatformdk", "true");
-					break;
-				case "winrt80":
-					//f.WriteElementString("TargetPlatformVersion", "8.0");
-					f.WriteElementString("UseVSHostingProcess", "false");
-					//f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					// TargetFrameworkVersion?
-					defines.Add("NETFX_CORE");
-					break;
-				case "winrt81":
-					f.WriteElementString("TargetPlatformVersion", "8.1");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("TargetFrameworkVersion", null);
-					defines.Add("NETFX_CORE");
-					break;
 				case "net45":
 					f.WriteElementString("ProductVersion", "12.0.0");
 					f.WriteElementString("TargetFrameworkVersion", "v4.5");
-					break;
-				case "wp80":
-					f.WriteElementString("TargetFrameworkIdentifier", "WindowsPhone");
-					f.WriteElementString("TargetFrameworkVersion", "v8.0");
-					f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					f.WriteElementString("SilverlightVersion", "v8.0");
-					f.WriteElementString("SilverlightApplication", "false");
-					f.WriteElementString("ValidateXaml", "true");
-					f.WriteElementString("ThrowErrorsInValidation", "true");
-					defines.Add("WINDOWS_PHONE");
-					defines.Add("SILVERLIGHT");
-					f.WriteElementString("NoStdLib", "true");
-					f.WriteElementString("NoConfig", "true");
-					break;
-				case "wp81_rt":
-					f.WriteElementString("TargetPlatformVersion", "8.1");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("UseVSHostingProcess", "false");
-					defines.Add("NETFX_CORE");
-					defines.Add("WINDOWS_PHONE_APP");
-					break;
-				case "wp81_sl":
-					f.WriteElementString("TargetFrameworkIdentifier", "WindowsPhone");
-					f.WriteElementString("TargetFrameworkVersion", "v8.1");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("SilverlightVersion", "v8.1");
-					f.WriteElementString("SilverlightApplication", "false");
-					f.WriteElementString("ValidateXaml", "true");
-					f.WriteElementString("ThrowErrorsInValidation", "true");
-					defines.Add("WINDOWS_PHONE");
-					defines.Add("SILVERLIGHT");
-					f.WriteElementString("NoStdLib", "true");
-					f.WriteElementString("NoConfig", "true");
 					break;
 			}
 
@@ -1801,31 +1398,6 @@ public static class gen
 			{
 				switch (cfg.env)
 				{
-					case "winrt80":
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' < '11.0' ");
-						f.WriteElementString("VisualStudioVersion", "11.0");
-						f.WriteEndElement(); // PropertyGroup
-						break;
-					case "winrt81":
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' < '12.0' ");
-						f.WriteElementString("VisualStudioVersion", "12.0");
-						f.WriteEndElement(); // PropertyGroup
-						break;
-					case "wp81_rt":
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' < '12.0' ");
-						f.WriteElementString("VisualStudioVersion", "12.0");
-						f.WriteEndElement(); // PropertyGroup
-
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(TargetPlatformIdentifier)' == '' ");
-						f.WriteElementString("TargetPlatformIdentifier", "WindowsPhoneApp");
-						f.WriteEndElement(); // PropertyGroup
-						break;
-					case "wp81_sl":
-						break;
 				}
 
 				switch (cfg.env)
@@ -1918,26 +1490,9 @@ public static class gen
 						f.WriteEndElement(); // Import
 
 						break;
-					case "winrt80":
-					case "winrt81":
-					case "wp81_rt":
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Microsoft\\WindowsXaml\\v$(VisualStudioVersion)\\Microsoft.Windows.UI.Xaml.CSharp.targets");
-						f.WriteEndElement(); // Import
-						break;
 					case "net45":
 						f.WriteStartElement("Import");
 						f.WriteAttributeString("Project", "$(MSBuildToolsPath)\\Microsoft.CSharp.targets");
-						f.WriteEndElement(); // Import
-						break;
-					case "wp80":
-					case "wp81_sl":
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Microsoft\\$(TargetFrameworkIdentifier)\\$(TargetFrameworkVersion)\\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets");
-						f.WriteEndElement(); // Import
-
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Microsoft\\$(TargetFrameworkIdentifier)\\$(TargetFrameworkVersion)\\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets");
 						f.WriteEndElement(); // Import
 						break;
 				}
@@ -1966,11 +1521,6 @@ public static class gen
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
 			switch (cfg.env)
 			{
-				case "winrt81":
-				case "wp81_rt":
-				case "wp81_sl":
-					f.WriteAttributeString("ToolsVersion", "12.0");
-					break;
 				default:
 					f.WriteAttributeString("ToolsVersion", "4.0");
 					break;
@@ -1996,28 +1546,6 @@ public static class gen
 
 			switch (cfg.env)
 			{
-				case "ios":
-					write_project_type_guids(f, GUID_IOS, GUID_CSHARP);
-					break;
-				case "unified":
-					write_project_type_guids(f, GUID_UNIFIED, GUID_CSHARP);
-					break;
-				case "android":
-					write_project_type_guids(f, GUID_ANDROID, GUID_CSHARP);
-					break;
-				case "winrt80":
-				case "winrt81":
-					write_project_type_guids(f, GUID_WINRT, GUID_CSHARP);
-					break;
-				case "wp80":
-					write_project_type_guids(f, GUID_WP8, GUID_CSHARP);
-					break;
-				case "wp81_rt":
-					write_project_type_guids(f, GUID_WP81RT, GUID_CSHARP);
-					break;
-				case "wp81_sl":
-					write_project_type_guids(f, GUID_WP8, GUID_CSHARP);
-					break;
 				case "net45":
 					write_project_type_guids(f, GUID_TEST, GUID_CSHARP);
 					break;
@@ -2039,6 +1567,9 @@ public static class gen
 			f.WriteElementString("OutputType", "Library");
 			// TODO f.WriteElementString("RootNamespace", "SQLitePCL");
 			// TODO f.WriteElementString("AssemblyName", "SQLitePCL"); // match the name in get_products()
+			f.WriteElementString("SignAssembly", "True");
+			f.WriteElementString("AssemblyOriginatorKeyFile", "../key.snk");
+
 
 			List<string> defines = new List<string>();
 
@@ -2052,68 +1583,11 @@ public static class gen
 				case "profile259":
 					f.WriteElementString("TargetFrameworkVersion", "v4.5");
 					break;
-				case "ios":
-					defines.Add("PLATFORM_IOS");
-					break;
-				case "unified":
-					defines.Add("PLATFORM_UNIFIED");
-					break;
-				case "android":
-					defines.Add("__MOBILE__");
-					defines.Add("__ANDROID__");
-					f.WriteElementString("AndroidUseLatestPlatformdk", "true");
-					break;
-				case "winrt80":
-					//f.WriteElementString("TargetPlatformVersion", "8.0");
-					f.WriteElementString("UseVSHostingProcess", "false");
-					//f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					// TargetFrameworkVersion?
-					defines.Add("NETFX_CORE");
-					break;
-				case "winrt81":
-					f.WriteElementString("TargetPlatformVersion", "8.1");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("TargetFrameworkVersion", null);
-					defines.Add("NETFX_CORE");
-					break;
 				case "net45":
 					f.WriteElementString("ProductVersion", "12.0.0");
 					f.WriteElementString("TargetFrameworkVersion", "v4.5");
 					f.WriteElementString("ReferencePath", "$(ProgramFiles)\\Common Files\\microsoft shared\\VSTT\\$(VisualStudioVersion)\\UITestExtensionPackages");
 					f.WriteElementString("TestProjectType", "UnitTest");
-					break;
-				case "wp80":
-					f.WriteElementString("TargetFrameworkIdentifier", "WindowsPhone");
-					f.WriteElementString("TargetFrameworkVersion", "v8.0");
-					f.WriteElementString("MinimumVisualStudioVersion", "11.0");
-					f.WriteElementString("SilverlightVersion", "v8.0");
-					f.WriteElementString("SilverlightApplication", "false");
-					f.WriteElementString("ValidateXaml", "true");
-					f.WriteElementString("ThrowErrorsInValidation", "true");
-					defines.Add("WINDOWS_PHONE");
-					defines.Add("SILVERLIGHT");
-					f.WriteElementString("NoStdLib", "true");
-					f.WriteElementString("NoConfig", "true");
-					break;
-				case "wp81_rt":
-					f.WriteElementString("TargetPlatformVersion", "8.1");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("UseVSHostingProcess", "false");
-					defines.Add("NETFX_CORE");
-					defines.Add("WINDOWS_PHONE_APP");
-					break;
-				case "wp81_sl":
-					f.WriteElementString("TargetFrameworkIdentifier", "WindowsPhone");
-					f.WriteElementString("TargetFrameworkVersion", "v8.1");
-					f.WriteElementString("MinimumVisualStudioVersion", "12.0");
-					f.WriteElementString("SilverlightVersion", "v8.1");
-					f.WriteElementString("SilverlightApplication", "false");
-					f.WriteElementString("ValidateXaml", "true");
-					f.WriteElementString("ThrowErrorsInValidation", "true");
-					defines.Add("WINDOWS_PHONE");
-					defines.Add("SILVERLIGHT");
-					f.WriteElementString("NoStdLib", "true");
-					f.WriteElementString("NoConfig", "true");
 					break;
 			}
 
@@ -2127,31 +1601,10 @@ public static class gen
 			f.WriteStartElement("ItemGroup");
 			switch (cfg.env)
 			{
-				case "unified":
-				case "ios":
-				case "android":
-					break;
 				case "net45":
 					write_reference(f, "System");
 					write_reference(f, "System.Core");
 					write_reference(f, "Microsoft.VisualStudio.QualityTools.UnitTestFramework");
-					break;
-				case "winrt80":
-					f.WriteStartElement("SDKReference");
-					f.WriteAttributeString("Include", "MSTestFramework, Version=11.0");
-					f.WriteEndElement(); // SDKReference
-					break;
-			}
-			switch (cfg.env)
-			{
-				case "unified":
-					write_reference(f, "Xamarin.iOS");
-					break;
-				case "ios":
-					write_reference(f, "monotouch");
-					break;
-				case "android":
-					write_reference(f, "Mono.Android");
 					break;
 			}
 			f.WriteEndElement(); // ItemGroup
@@ -2162,15 +1615,7 @@ public static class gen
 
 			f.WriteStartElement("ItemGroup");
 			f.WriteStartElement("ProjectReference");
-			if (cfg.env == "winrt80")
-			{
-				config_pcl other = projects.find_bait(cfg.pcl);
-				f.WriteAttributeString("Include", other.get_project_filename());
-				f.WriteElementString("Project", other.guid);
-				f.WriteElementString("Name", other.get_name());
-				//f.WriteElementString("Private", "true");
-			}
-			else if (cfg.env == "net45")
+			if (cfg.env == "net45")
 			{
 				var a = projects.find_pcls(
 					"net45",
@@ -2200,57 +1645,6 @@ public static class gen
 			{
 				switch (cfg.env)
 				{
-					case "winrt80":
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' < '11.0' ");
-						f.WriteElementString("VisualStudioVersion", "11.0");
-						f.WriteEndElement(); // PropertyGroup
-						break;
-					case "winrt81":
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' < '12.0' ");
-						f.WriteElementString("VisualStudioVersion", "12.0");
-						f.WriteEndElement(); // PropertyGroup
-						break;
-					case "wp81_rt":
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' < '12.0' ");
-						f.WriteElementString("VisualStudioVersion", "12.0");
-						f.WriteEndElement(); // PropertyGroup
-
-						f.WriteStartElement("PropertyGroup");
-						f.WriteAttributeString("Condition", " '$(TargetPlatformIdentifier)' == '' ");
-						f.WriteElementString("TargetPlatformIdentifier", "WindowsPhoneApp");
-						f.WriteEndElement(); // PropertyGroup
-						break;
-					case "wp81_sl":
-						break;
-				}
-
-				switch (cfg.env)
-				{
-					case "unified":
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Xamarin\\iOS\\Xamarin.iOS.CSharp.targets");
-						f.WriteEndElement(); // Import
-						break;
-					case "ios":
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Xamarin\\iOS\\Xamarin.MonoTouch.CSharp.targets");
-						f.WriteEndElement(); // Import
-						break;
-					case "android":
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Novell\\Novell.MonoDroid.CSharp.targets");
-						f.WriteEndElement(); // Import
-						break;
-					case "winrt80":
-					case "winrt81":
-					case "wp81_rt":
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Microsoft\\WindowsXaml\\v$(VisualStudioVersion)\\Microsoft.Windows.UI.Xaml.CSharp.targets");
-						f.WriteEndElement(); // Import
-						break;
 					case "net45":
 						f.WriteStartElement("Import");
 						f.WriteAttributeString("Project", "$(VSToolsPath)\\TeamTest\\Microsoft.TestTools.targets");
@@ -2259,16 +1653,6 @@ public static class gen
 
 						f.WriteStartElement("Import");
 						f.WriteAttributeString("Project", "$(MSBuildToolsPath)\\Microsoft.CSharp.targets");
-						f.WriteEndElement(); // Import
-						break;
-					case "wp80":
-					case "wp81_sl":
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Microsoft\\$(TargetFrameworkIdentifier)\\$(TargetFrameworkVersion)\\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets");
-						f.WriteEndElement(); // Import
-
-						f.WriteStartElement("Import");
-						f.WriteAttributeString("Project", "$(MSBuildExtensionsPath)\\Microsoft\\$(TargetFrameworkIdentifier)\\$(TargetFrameworkVersion)\\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets");
 						f.WriteEndElement(); // Import
 						break;
 				}
@@ -2326,6 +1710,9 @@ public static class gen
 			f.WriteElementString("OutputType", "Library");
 			//f.WriteElementString("RootNamespace", "whatever"); // TODO
 			f.WriteElementString("AssemblyName", cfg.assemblyname);
+			f.WriteElementString("SignAssembly", "True");
+			f.WriteElementString("AssemblyOriginatorKeyFile", "../key.snk");
+
 
 			switch (cfg.env)
 			{
@@ -2637,7 +2024,7 @@ public static class gen
 		f.WriteEndElement(); // file
 	}
 
-	private const string NUSPEC_VERSION = "0.7.2-pre2";
+	private const string NUSPEC_VERSION = "0.7.2-GHfVS";
 	private const string NUSPEC_RELEASE_NOTES = "packaged_sqlite3 for Mac.";
 
 	private static void gen_nuspec_basic(string top, string root, string id)
@@ -2789,81 +2176,11 @@ public static class gen
 #endif
             }
 
-                // --------------------------------
-            {
-                var a = projects.find_pcls(
-                    "unified",
-                    "pinvoke",
-                    null,
-                    "anycpu",
-                    null
-                    );
-                write_nuspec_file_entries(f, "build",
-                        a
-                        );
-
-                string tname = string.Format("{0}.targets", "unified");
-
-		f.WriteComment("empty directory in lib to avoid nuget adding a reference to the bait");
-
-		Directory.CreateDirectory(Path.Combine(Path.Combine(top, "empty"), config_pcl.get_nuget_framework_name("unified")));
-
-		f.WriteStartElement("file");
-		f.WriteAttributeString("src", string.Format("empty\\{0}\\", config_pcl.get_nuget_framework_name("unified")));
-		f.WriteAttributeString("target", string.Format("lib\\{0}", config_pcl.get_nuget_framework_name("unified")));
-		f.WriteEndElement(); // file
-
-                gen_nuget_targets_android_or_unified_packaged_sqlite3(top, tname, a);
-
-                f.WriteStartElement("file");
-                f.WriteAttributeString("src", tname);
-                f.WriteAttributeString("target", string.Format("build\\{0}\\{1}.targets", config_pcl.get_nuget_framework_name("unified"), id));
-                f.WriteEndElement(); // file
-            }
-
-                // --------------------------------
-            {
-                var a = projects.find_pcls(
-                    "android",
-                    "pinvoke",
-                    null,
-                    "anycpu",
-                    null
-                    );
-                write_nuspec_file_entries(f, "build",
-                        a
-                        );
-
-                string tname = string.Format("{0}.targets", "android");
-
-		f.WriteComment("empty directory in lib to avoid nuget adding a reference to the bait");
-
-		Directory.CreateDirectory(Path.Combine(Path.Combine(top, "empty"), config_pcl.get_nuget_framework_name("android")));
-
-		f.WriteStartElement("file");
-		f.WriteAttributeString("src", string.Format("empty\\{0}\\", config_pcl.get_nuget_framework_name("android")));
-		f.WriteAttributeString("target", string.Format("lib\\{0}", config_pcl.get_nuget_framework_name("android")));
-		f.WriteEndElement(); // file
-
-                gen_nuget_targets_android_or_unified_packaged_sqlite3(top, tname, a);
-
-                f.WriteStartElement("file");
-                f.WriteAttributeString("src", tname);
-                f.WriteAttributeString("target", string.Format("build\\{0}\\{1}.targets", config_pcl.get_nuget_framework_name("android"), id));
-                f.WriteEndElement(); // file
-            }
-
 			f.WriteComment("END platform assemblies that use pinvoke in build dir");
 
 			f.WriteComment("BEGIN platform assemblies that use pinvoke");
 			Dictionary<string, string> pcl_env_pinvoke = new Dictionary<string, string>();
-			pcl_env_pinvoke["ios"] = null;
-			// not here: pcl_env_pinvoke["android"] = null;
-			// not here: pcl_env_pinvoke["unified"] = null;
 			pcl_env_pinvoke["net45"] = null;
-			pcl_env_pinvoke["winrt80"] = null;
-			pcl_env_pinvoke["winrt81"] = null;
-			pcl_env_pinvoke["wp81_rt"] = null;
 
 			foreach (string env in pcl_env_pinvoke.Keys)
 			{
@@ -2876,10 +2193,6 @@ public static class gen
 							null
 							)
 						);
-
-				if ("ios" == env) continue; // Xamarin.iOS classic can't do .targets files
-				if ("unified" == env) continue; // TODO fix this to handle packaged sqlite
-				if ("android" == env) continue; // TODO fix this to handle packaged sqlite
 
 				string tname = string.Format("{0}.targets", env);
 
@@ -2903,29 +2216,6 @@ public static class gen
 			// TODO remove this directory first?
 			Directory.CreateDirectory(Path.Combine(top, "empty"));
 			
-			f.WriteComment("BEGIN platform assemblies that use cppinterop");
-			Dictionary<string, string> pcl_env_cppinterop = new Dictionary<string, string>();
-			pcl_env_cppinterop["wp80"] = null;
-			pcl_env_cppinterop["wp81_sl"] = null;
-
-			foreach (string env in pcl_env_cppinterop.Keys)
-			{
-				write_cppinterop_with_targets_file(f, 
-						projects.find_pcls(
-							env,
-							"cppinterop",
-							"sqlite3",
-							null,
-							"dynamic"
-							),
-						env,
-						top,
-						false,
-						id
-						);
-			}
-			f.WriteComment("END platform assemblies that use cppinterop");
-
 			f.WriteComment("END platform assemblies");
 
 			f.WriteEndElement(); // files
@@ -3071,19 +2361,6 @@ public static class gen
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
 			f.WriteAttributeString("BeforeTargets", "ResolveAssemblyReferences");
-
-			switch (env)
-			{
-				case "winrt80":
-				case "winrt81":
-				case "wp81_rt":
-				case "wp81_sl":
-					f.WriteStartElement("Message");
-					f.WriteAttributeString("Text", "NOTE that you may need to add a reference to Microsoft Visual C++ Runtime.");
-					f.WriteAttributeString("Importance", "High");
-					f.WriteEndElement(); // Message
-					break;
-			}
 			
 			foreach (config_sqlite3 cfg in projects.items_sqlite3)
 			{
@@ -3098,20 +2375,6 @@ public static class gen
 				}
 
 				bool b_platform_condition = true;
-
-				switch (env)
-				{
-					// TODO unified?
-					case "ios":
-						b_platform_condition = false;
-						break;
-					case "android":
-						b_platform_condition = false;
-						break;
-
-					default:
-						break;
-				}
 
 				f.WriteStartElement("ItemGroup");
 				if (b_platform_condition)
@@ -3156,19 +2419,6 @@ public static class gen
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
 			f.WriteAttributeString("BeforeTargets", "ResolveAssemblyReferences");
-
-			switch (env)
-			{
-				case "winrt80":
-				case "winrt81":
-				case "wp81_rt":
-				case "wp81_sl":
-					f.WriteStartElement("Message");
-					f.WriteAttributeString("Text", "NOTE that you may need to add a reference to Microsoft Visual C++ Runtime.");
-					f.WriteAttributeString("Importance", "High");
-					f.WriteEndElement(); // Message
-					break;
-			}
 			
 			f.WriteStartElement("ItemGroup");
 			f.WriteAttributeString("Condition", " '$(OS)' == 'Windows_NT' ");
@@ -3312,34 +2562,8 @@ public static class gen
 
 			foreach (config_pcl cfg in a)
 			{
-				switch (cfg.env)
-				{
-					case "winrt80":
-					case "winrt81":
-					case "wp81_rt":
-					case "wp81_sl":
-						f.WriteStartElement("Message");
-						f.WriteAttributeString("Text", "NOTE that you may need to add a reference to Microsoft Visual C++ Runtime.");
-						f.WriteAttributeString("Importance", "High");
-						f.WriteEndElement(); // Message
-						break;
-				}
-				
+			
 				bool b_platform_condition = true;
-
-				switch (cfg.env)
-				{
-					// TODO unified?
-					case "ios":
-						b_platform_condition = false;
-						break;
-					case "android":
-						b_platform_condition = false;
-						break;
-
-					default:
-						break;
-				}
 
 				f.WriteComment(string.Format("{0}", cfg.get_name()));
 				f.WriteStartElement("ItemGroup");

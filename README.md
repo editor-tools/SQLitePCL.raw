@@ -4,6 +4,12 @@
 SQLitePCL.raw is a Portable Class Library (PCL) for low-level (raw)
 access to SQLite.
 
+## Building
+
+* Compile and run gen_build
+* Compile the generated solution bld/sqlitepcl.sln
+* Package the nuspec with nuget/NuGet.exe pack SQLitePCL.raw_basic.nuspec or SQLitePCL.raw.nuspec
+
 ## Is this open source?
 
 Yes.  Apache License v2.
