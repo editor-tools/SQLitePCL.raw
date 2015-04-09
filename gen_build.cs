@@ -2721,10 +2721,10 @@ public static class gen
 		using (TextWriter tw = new StreamWriter(Path.Combine(top, "pack.ps1")))
 		{
 			tw.WriteLine("# TODO");
-			tw.WriteLine("../../nuget pack SQLitePCL.raw.nuspec");
-			tw.WriteLine("../../nuget pack SQLitePCL.raw_basic.nuspec");
-			tw.WriteLine("../../nuget pack SQLitePCL.ugly.nuspec");
-			tw.WriteLine("../../nuget pack SQLitePCL.tests.nuspec");
+			tw.WriteLine(@"..\nuget\nuget pack SQLitePCL.raw.nuspec");
+			tw.WriteLine(@"..\nuget\nuget pack SQLitePCL.raw_basic.nuspec");
+			tw.WriteLine(@"..\nuget\nuget pack SQLitePCL.ugly.nuspec");
+			tw.WriteLine(@"..\nuget\nuget pack SQLitePCL.tests.nuspec");
 			tw.WriteLine("ls *.nupkg");
 		}
 	}
