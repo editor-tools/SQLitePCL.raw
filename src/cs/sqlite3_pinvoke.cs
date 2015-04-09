@@ -1210,11 +1210,11 @@ namespace SQLitePCL
 	    if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
 	    {
 		    var currentAssembly = typeof(NativeMethods).GetTypeInfo().Assembly;
-		    if (TryLoadFromDirectory("sqlite3.dll", new Uri(AppDomain.CurrentDomain.BaseDirectory).LocalPath))
+		    if (TryLoadFromDirectory("sqlite3.dll", System.IO.Path.GetDirectoryName(currentAssembly.Location)))
 		    {
 			return;
 		    }
-		    throw new Exception("sqlite3.dll was not loaded.");
+		    throw new Exception("Tried to load sqlite3.dll from " + AppDomain.CurrentDomain.BaseDirectory + " and failed miserably.");
 	    }
         }
 #endif
