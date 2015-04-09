@@ -700,7 +700,7 @@ public static class gen
 
 		f.WriteElementString("DebugSymbols", debug ? "true" : "false");
 		f.WriteElementString("Optimize", debug ? "false" : "true");
-		f.WriteElementString("DebugType", debug ? "full" : "none");
+		f.WriteElementString("DebugType", debug ? "full" : "pdbonly");
 
 		f.WriteEndElement(); // PropertyGroup
 	}
@@ -732,7 +732,7 @@ public static class gen
 
 		f.WriteElementString("DebugSymbols", debug ? "true" : "false");
 		f.WriteElementString("Optimize", debug ? "false" : "true");
-		f.WriteElementString("DebugType", debug ? "full" : "none");
+		f.WriteElementString("DebugType", debug ? "full" : "pdbonly");
 
 		f.WriteEndElement(); // PropertyGroup
 	}
