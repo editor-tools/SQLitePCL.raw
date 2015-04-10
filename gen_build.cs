@@ -749,7 +749,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "4.0");
+			f.WriteAttributeString("ToolsVersion", "14.0");
 			f.WriteAttributeString("DefaultTargets", "Build");
 
 			f.WriteStartElement("ItemGroup");
@@ -800,7 +800,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				case "winxp":
-					f.WriteElementString("PlatformToolset", "v110_xp");
+					f.WriteElementString("PlatformToolset", "v140_xp");
 					break;
 			}
 
@@ -927,7 +927,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				default:
-					f.WriteAttributeString("ToolsVersion", "4.0");
+					f.WriteAttributeString("ToolsVersion", "14.0");
 					break;
 			}
 			f.WriteAttributeString("DefaultTargets", "Build");
@@ -974,7 +974,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				case "net45":
-					f.WriteElementString("PlatformToolset", "v110");
+					f.WriteElementString("PlatformToolset", "v140");
 					f.WriteElementString("CLRSupport", "true");
 					break;
 			}
@@ -2356,7 +2356,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "4.0");
+			f.WriteAttributeString("ToolsVersion", "14.0");
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
@@ -2414,7 +2414,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "4.0");
+			f.WriteAttributeString("ToolsVersion", "14.0");
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
@@ -2466,7 +2466,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "4.0");
+			f.WriteAttributeString("ToolsVersion", "14.0");
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
@@ -2545,7 +2545,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "4.0");
+			f.WriteAttributeString("ToolsVersion", "14.0");
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("check_cpu_{0}", Guid.NewGuid().ToString()));
