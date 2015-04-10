@@ -2024,7 +2024,7 @@ public static class gen
 		f.WriteEndElement(); // file
 	}
 
-	private const string NUSPEC_VERSION = "0.7.2.1-GHfVS";
+	private const string NUSPEC_VERSION = "0.7.2.2-GHfVS";
 	private const string NUSPEC_RELEASE_NOTES = "packaged_sqlite3 for Mac.";
 
 	private static void gen_nuspec_basic(string top, string root, string id)
