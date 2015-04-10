@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Automatically generated-->
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{638F6CFA-9141-4EEF-B3A5-0C4CFDF8B142}</ProjectGuid>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <DefaultLanguage>en-us</DefaultLanguage>
+    <WarningLevel>4</WarningLevel>
+    <OutputType>Library</OutputType>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>../key.snk</AssemblyOriginatorKeyFile>
+    <ProductVersion>12.0.0</ProductVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <TestProjectType>UnitTest</TestProjectType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'debug' ">
+    <OutputPath>debug\bin\tests\net45\</OutputPath>
+    <IntermediateOutputPath>debug\obj\tests\net45\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'release' ">
+    <OutputPath>release\bin\tests\net45\</OutputPath>
+    <IntermediateOutputPath>release\obj\tests\net45\</IntermediateOutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\src\cs\test_cases.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="platform.net45.cppinterop_sqlite3_static.x86.csproj">
+      <Project>{855B0026-F9B2-4A8E-92DC-30D90B5A0F5B}</Project>
+      <Name>platform.net45.cppinterop_sqlite3_static.x86</Name>
+    </ProjectReference>
+    <ProjectReference Include="ugly_profile78.csproj">
+      <Project>{AE54F3F0-AD44-441A-BD36-B27F6DCDF916}</Project>
+      <Name>ugly_profile78</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

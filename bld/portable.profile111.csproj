@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Automatically generated-->
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{65BA63C9-1093-4726-AE44-E38AD7772EAE}</ProjectGuid>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <Platform>anycpu</Platform>
+    <DefaultLanguage>en-us</DefaultLanguage>
+    <WarningLevel>4</WarningLevel>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SQLitePCL</RootNamespace>
+    <AssemblyName>SQLitePCL.raw</AssemblyName>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>../key.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>profile111</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'debug|anycpu' ">
+    <OutputPath>debug\bin\pcl\profile111\</OutputPath>
+    <IntermediateOutputPath>debug\obj\pcl\profile111\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'release|anycpu' ">
+    <OutputPath>release\bin\pcl\profile111\</OutputPath>
+    <IntermediateOutputPath>release\obj\pcl\profile111\</IntermediateOutputPath>
+    <DefineConstants />
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="..\src\cs\AssemblyInfo.cs" />
+    <Compile Include="..\src\cs\raw.cs" />
+    <Compile Include="..\src\cs\intptrs.cs" />
+    <Compile Include="..\src\cs\isqlite3.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\src\cs\sqlite3_bait.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+</Project>

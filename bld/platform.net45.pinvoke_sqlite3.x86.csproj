@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Automatically generated-->
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{945FBFD0-BF8C-4462-B2CF-50C4710BFB8F}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <Platform>x86</Platform>
+    <DefaultLanguage>en-us</DefaultLanguage>
+    <WarningLevel>4</WarningLevel>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SQLitePCL</RootNamespace>
+    <AssemblyName>SQLitePCL.raw</AssemblyName>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>../key.snk</AssemblyOriginatorKeyFile>
+    <ProductVersion>12.0.0</ProductVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'debug|x86' ">
+    <OutputPath>debug\bin\pcl\net45\pinvoke_sqlite3\x86\</OutputPath>
+    <IntermediateOutputPath>debug\obj\pcl\net45\pinvoke_sqlite3\x86\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;PINVOKE_FROM_SQLITE3;</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'release|x86' ">
+    <OutputPath>release\bin\pcl\net45\pinvoke_sqlite3\x86\</OutputPath>
+    <IntermediateOutputPath>release\obj\pcl\net45\pinvoke_sqlite3\x86\</IntermediateOutputPath>
+    <DefineConstants>PINVOKE_FROM_SQLITE3;</DefineConstants>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\src\cs\AssemblyInfo.cs" />
+    <Compile Include="..\src\cs\raw.cs" />
+    <Compile Include="..\src\cs\intptrs.cs" />
+    <Compile Include="..\src\cs\isqlite3.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\src\cs\sqlite3_pinvoke.cs" />
+    <Compile Include="..\src\cs\util.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
