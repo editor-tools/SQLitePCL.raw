@@ -2024,8 +2024,8 @@ public static class gen
 		f.WriteEndElement(); // file
 	}
 
-	private const string NUSPEC_VERSION = "0.7.2.2-GHfVS";
-	private const string NUSPEC_RELEASE_NOTES = "packaged_sqlite3 for Mac.";
+	private static string NUSPEC_VERSION = "0.7.2.3";
+	private static string NUSPEC_RELEASE_NOTES = "packaged_sqlite3 for Mac.";
 
 	private static void gen_nuspec_basic(string top, string root, string id)
 	{
@@ -2642,10 +2642,21 @@ public static class gen
 		{
 			for (int i = 0; i < args.Length; i++)
 			{
-				if (args[i] == "-vs" && args.Length > i+1)
-					int.TryParse(args[i+1], out VSVersion);
+				switch(args[i]) {
+					case "-vs":
+						if (args.Length > i+1)
+							int.TryParse(args[++i], out VSVersion);
+					break;
+					case "-v":
+						if (args.Length > i+1)
+							NUSPEC_VERSION = args[++i];
+					break;
+				}
 			}
 		}
+
+		NUSPEC_VERSION += string.Format("-vs{0}", VSVersion);
+		NUSPEC_RELEASE_NOTES += string.Format(" Built with Visual Studio {0}", VSVersion);
 
 		switch(VSVersion) {
 			case 2008:
@@ -2763,6 +2774,8 @@ public static class gen
 			tw.WriteLine(@"..\nuget\nuget pack SQLitePCL.tests.nuspec");
 			tw.WriteLine("ls *.nupkg");
 		}
+
+		Console.WriteLine("Generated project files for Visual Studio " + VSVersion);
 	}
 }
 
