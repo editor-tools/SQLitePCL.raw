@@ -749,7 +749,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "14.0");
+			f.WriteAttributeString("ToolsVersion", ToolsVersion);
 			f.WriteAttributeString("DefaultTargets", "Build");
 
 			f.WriteStartElement("ItemGroup");
@@ -800,7 +800,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				case "winxp":
-					f.WriteElementString("PlatformToolset", "v140_xp");
+					f.WriteElementString("PlatformToolset", PlatformToolset + "_xp");
 					break;
 			}
 
@@ -927,7 +927,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				default:
-					f.WriteAttributeString("ToolsVersion", "14.0");
+					f.WriteAttributeString("ToolsVersion", ToolsVersion);
 					break;
 			}
 			f.WriteAttributeString("DefaultTargets", "Build");
@@ -974,7 +974,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				case "net45":
-					f.WriteElementString("PlatformToolset", "v140");
+					f.WriteElementString("PlatformToolset", PlatformToolset);
 					f.WriteElementString("CLRSupport", "true");
 					break;
 			}
@@ -1170,7 +1170,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				default:
-					f.WriteAttributeString("ToolsVersion", "4.0");
+					f.WriteAttributeString("ToolsVersion", ToolsVersion);
 					break;
 			}
 			f.WriteAttributeString("DefaultTargets", "Build");
@@ -1522,7 +1522,7 @@ public static class gen
 			switch (cfg.env)
 			{
 				default:
-					f.WriteAttributeString("ToolsVersion", "4.0");
+					f.WriteAttributeString("ToolsVersion", ToolsVersion);
 					break;
 			}
 			f.WriteAttributeString("DefaultTargets", "Build");
@@ -1680,7 +1680,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "4.0");
+			f.WriteAttributeString("ToolsVersion", ToolsVersion);
 			f.WriteAttributeString("DefaultTargets", "Build");
 
 			// TODO is this actually needed?
@@ -2356,7 +2356,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "14.0");
+			f.WriteAttributeString("ToolsVersion", ToolsVersion);
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
@@ -2414,7 +2414,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "14.0");
+			f.WriteAttributeString("ToolsVersion", ToolsVersion);
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
@@ -2466,7 +2466,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "14.0");
+			f.WriteAttributeString("ToolsVersion", ToolsVersion);
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("InjectReference_{0}", Guid.NewGuid().ToString()));
@@ -2545,7 +2545,7 @@ public static class gen
 			f.WriteComment("Automatically generated");
 
 			f.WriteStartElement("Project", "http://schemas.microsoft.com/developer/msbuild/2003");
-			f.WriteAttributeString("ToolsVersion", "14.0");
+			f.WriteAttributeString("ToolsVersion", ToolsVersion);
 
 			f.WriteStartElement("Target");
 			f.WriteAttributeString("Name", string.Format("check_cpu_{0}", Guid.NewGuid().ToString()));
@@ -2632,8 +2632,44 @@ public static class gen
 		}
 	}
 
+	static int VSVersion = 2012;
+	static string PlatformToolset = "v110";
+	static string ToolsVersion = "4.0";
+
 	public static void Main(string[] args)
 	{
+		if (args.Length > 0)
+		{
+			for (int i = 0; i < args.Length; i++)
+			{
+				if (args[i] == "-vs" && args.Length > i+1)
+					int.TryParse(args[i+1], out VSVersion);
+			}
+		}
+
+		switch(VSVersion) {
+			case 2008:
+				PlatformToolset = "v90";
+				ToolsVersion = "3.5";
+				break;
+			case 2010:
+				PlatformToolset = "v100";
+				ToolsVersion = "4.0";
+				break;
+			case 2012:
+				PlatformToolset = "v110";
+				ToolsVersion = "4.0";
+				break;
+			case 2013:
+				PlatformToolset = "v120";
+				ToolsVersion = "12.0";
+				break;
+			case 2015:
+				PlatformToolset = "v140";
+				ToolsVersion = "14.0";
+				break;
+		}
+
 		projects.init();
 
 		string root = ".."; // assumes that gen_build.exe is being run from the root directory of the project
