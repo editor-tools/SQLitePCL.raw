@@ -2024,8 +2024,19 @@ public static class gen
 		f.WriteEndElement(); // file
 	}
 
-	private static string NUSPEC_VERSION = "0.7.2.3";
-	private static string NUSPEC_RELEASE_NOTES = "packaged_sqlite3 for Mac.";
+	private static string NUSPEC_VERSION = "0.7.2.4";
+	private static string NUSPEC_RELEASE_NOTES = @"Make loading the native dll more robust and improve error message
+Bump to 0.7.2.3 and name packages with vs version used to build them
+Add missing nuget packager
+Add command line flag -vs to allow targetting vs 2008-2015
+Bump to 0.7.2.2
+Bump to VS 2015
+Bump package version/name
+Fix generating scripts for packaging
+generate symbols for release builds
+Search for the native dlls next to where the currently assembly is
+Sign all the things (but only for desktop)
+";
 
 	private static void gen_nuspec_basic(string top, string root, string id)
 	{
@@ -2052,9 +2063,9 @@ public static class gen
 			f.WriteElementString("copyright", "Copyright 2014-2015 Zumero, LLC");
 			f.WriteElementString("requireLicenseAcceptance", "false");
 			f.WriteElementString("licenseUrl", "https://raw.github.com/ericsink/SQLitePCL.raw/master/LICENSE.TXT");
-			f.WriteElementString("projectUrl", "https://github.com/ericsink/SQLitePCL.raw");
+			f.WriteElementString("projectUrl", "https://github.com/editor-tools/SQLitePCL.raw");
 			f.WriteElementString("releaseNotes", NUSPEC_RELEASE_NOTES);
-			f.WriteElementString("summary", "A Portable Class Library (PCL) for low-level (raw) access to SQLite");
+			f.WriteElementString("summary", "A fork of SQLitePCL.Raw, a Portable Class Library (PCL) for low-level (raw) access to SQLite");
 			f.WriteElementString("tags", "sqlite pcl database monotouch ios monodroid android wp8 wpa");
 
 			f.WriteEndElement(); // metadata
