@@ -1174,49 +1174,83 @@ namespace SQLitePCL
 #elif PINVOKE_ANYCPU_NET45
         private const string SQLITE_DLL = "sqlite3";
 
-	// TODO can the code below be adapted to cope with Mono on Mac or Linux?
+            // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+            // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+            // https://github.com/aspnet/DataCommon.SQLite/blob/dev/src/Microsoft.Data.SQLite/Utilities/NativeLibraryLoader.cs
 
-        // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
-        // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-        // https://github.com/aspnet/DataCommon.SQLite/blob/dev/src/Microsoft.Data.SQLite/Utilities/NativeLibraryLoader.cs
+            [DllImport("kernel32")]
+            private static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
 
-        [DllImport("kernel32")]
-        private static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
+            public static bool Is32bit { get { return IntPtr.Size == 4; } }
+            public static bool IsWindows { get { return Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX; } }
+            public static bool IsMac { get { return Environment.OSVersion.Platform == PlatformID.MacOSX; } }
 
-        private static bool TryLoadFromDirectory(string dllName, string baseDirectory)
-        {
-            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(dllName), "dllName is null or empty.");
-            System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(baseDirectory), "baseDirectory is null or empty.");
-            System.Diagnostics.Debug.Assert(System.IO.Path.IsPathRooted(baseDirectory), "baseDirectory is not rooted.");
+            private const string X86 = "x86";
+            private const string X64 = "x64";
 
-            var architecture = IntPtr.Size == 4
-                ? "x86"
-                : "x64";
+            enum Architecture
+            {
+                AutoDetect,
+                InverseAutoDetect,
+                Bit32,
+                Bit64,
+            }
 
-            var dllPath = System.IO.Path.Combine(baseDirectory, architecture, dllName);
-            if (!System.IO.File.Exists(dllPath))
-	    {
-                return false;
-	    }
+            private static string CalculateDllPath(string baseDirectory, Architecture arch = Architecture.AutoDetect)
+            {
+                System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(baseDirectory), "baseDirectory is null or empty.");
+                System.Diagnostics.Debug.Assert(System.IO.Path.IsPathRooted(baseDirectory), "baseDirectory is not rooted.");
 
-	    const uint LOAD_WITH_ALTERED_SEARCH_PATH = 8;
+                string architecture = null;
+                switch (arch)
+                {
+                    case Architecture.AutoDetect:
+                        architecture = Is32bit ? X86 : X64;
+                        break;
+                    case Architecture.InverseAutoDetect:
+                        architecture = Is32bit ? X64 : X32;
+                        break;
+                    case Architecture.Bit32:
+                        architecture = X86;
+                        break;
+                    case Architecture.Bit64:
+                        architecture = X64;
+                        break;
+                }
+                return System.IO.Path.Combine(baseDirectory, architecture);
+            }
 
-            var ptr = LoadLibraryEx(dllPath, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
-            return ptr != IntPtr.Zero;
-        }
+            private static bool TryLoad(string dllPath)
+            {
+                System.Diagnostics.Debug.Assert(!string.IsNullOrWhiteSpace(dllPath), "dllPath is null or empty.");
+                System.Diagnostics.Debug.Assert(System.IO.Path.IsPathRooted(dllPath), "dllPath is not rooted.");
 
-        static NativeMethods()
-        {
-	    if (System.Environment.OSVersion.Platform == PlatformID.Win32NT)
-	    {
-		    var currentAssembly = typeof(NativeMethods).GetTypeInfo().Assembly;
-		    if (TryLoadFromDirectory("sqlite3.dll", System.IO.Path.GetDirectoryName(currentAssembly.Location)))
-		    {
-			return;
-		    }
-		    throw new Exception("Tried to load sqlite3.dll from " + AppDomain.CurrentDomain.BaseDirectory + " and failed miserably.");
-	    }
-        }
+                const uint LOAD_WITH_ALTERED_SEARCH_PATH = 8;
+                var ptr = LoadLibraryEx(dllPath, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
+                return ptr != IntPtr.Zero;
+            }
+
+            static NativeMethods()
+            {
+                if (IsWindows)
+                {
+                    var currentAssembly = typeof(NativeMethods).GetTypeInfo().Assembly;
+
+                    List<string> probedPaths = new List<string>();
+
+                    var dllPath = CalculateDllPath(System.IO.Path.GetDirectoryName(currentAssembly.Location));
+                    if (TryLoad("sqlite3.dll", dllPath))
+                        return;
+                    probedPaths.Add(dllPath);
+
+                    dllPath = CalculateDllPath(System.IO.Path.GetDirectoryName(currentAssembly.Location), Architecture.InverseAutoDetect);
+                    if (TryLoad("sqlite3.dll", dllPath))
+                        return;
+                    probedPaths.Add(dllPath);
+
+                    throw new Exception("Tried to load sqlite3.dll from " + String.Join(';', probedPaths) + " and failed miserably.");
+                }
+            }
 #endif
 
             [DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
