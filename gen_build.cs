@@ -2024,8 +2024,9 @@ public static class gen
 		f.WriteEndElement(); // file
 	}
 
-	private static string NUSPEC_VERSION = "0.7.2.4";
-	private static string NUSPEC_RELEASE_NOTES = @"Make loading the native dll more robust and improve error message
+	private static string NUSPEC_VERSION = "0.7.3.1";
+	private static string NUSPEC_RELEASE_NOTES = @"Bump to 0.7.3.1
+Make loading the native dll more robust and improve error message
 Bump to 0.7.2.3 and name packages with vs version used to build them
 Add missing nuget packager
 Add command line flag -vs to allow targetting vs 2008-2015

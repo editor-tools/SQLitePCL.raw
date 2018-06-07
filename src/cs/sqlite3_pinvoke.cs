@@ -1208,7 +1208,7 @@ namespace SQLitePCL
                         architecture = Is32bit ? X86 : X64;
                         break;
                     case Architecture.InverseAutoDetect:
-                        architecture = Is32bit ? X64 : X32;
+                        architecture = Is32bit ? X64 : X86;
                         break;
                     case Architecture.Bit32:
                         architecture = X86;
@@ -1238,17 +1238,17 @@ namespace SQLitePCL
 
                     List<string> probedPaths = new List<string>();
 
-                    var dllPath = CalculateDllPath(System.IO.Path.GetDirectoryName(currentAssembly.Location));
-                    if (TryLoad("sqlite3.dll", dllPath))
+                    var dllPath = System.IO.Path.Combine(CalculateDllPath(System.IO.Path.GetDirectoryName(currentAssembly.Location)), "sqlite3.dll");
+                    if (TryLoad(dllPath))
                         return;
                     probedPaths.Add(dllPath);
 
-                    dllPath = CalculateDllPath(System.IO.Path.GetDirectoryName(currentAssembly.Location), Architecture.InverseAutoDetect);
-                    if (TryLoad("sqlite3.dll", dllPath))
+                    dllPath = System.IO.Path.Combine(CalculateDllPath(System.IO.Path.GetDirectoryName(currentAssembly.Location), Architecture.InverseAutoDetect), "sqlite3.dll");
+                    if (TryLoad(dllPath))
                         return;
                     probedPaths.Add(dllPath);
 
-                    throw new Exception("Tried to load sqlite3.dll from " + String.Join(';', probedPaths) + " and failed miserably.");
+                    throw new Exception("Tried to load sqlite3.dll from " + String.Join(";", probedPaths.ToArray()) + " and failed miserably.");
                 }
             }
 #endif
