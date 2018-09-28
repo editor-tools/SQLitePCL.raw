@@ -4,13 +4,21 @@
 SQLitePCL.raw is a Portable Class Library (PCL) for low-level (raw)
 access to SQLite.
 
+## Prequisites
+
+- 
+
 ## Building
 
-* If needed, bump the version in https://github.com/ericsink/SQLitePCL.raw/blob/31522a2091616a52107b07f4e418a43ac9ff5f9f/gen_build.cs#L2027 and add the release notes that will go into the nuget package.
-* Compile `gen_build` by running `msbuild gen_build.sln` (or compiling in VS)
-* Run `gen_build`. This will generate the build system in the `bld` directory
-* Compile the generated solution: `bld\sqlitepcl.sln`
-* Package the nuspec with `nuget\NuGet.exe pack SQLitePCL.raw.nuspec` or `nuget\NuGet.exe pack SQLitePCL.raw_basic.nuspec`, depending on which package you want.
+1. If needed, update the release notes that will go into the nuget package in [gen_build.cs](https://github.com/ericsink/SQLitePCL.raw/blob/31522a2091616a52107b07f4e418a43ac9ff5f9f/gen_build.cs#L2028)
+2. You can also bump the version in [gen_build.cs](https://github.com/ericsink/SQLitePCL.raw/blob/31522a2091616a52107b07f4e418a43ac9ff5f9f/gen_build.cs#L2027), or you can specify the version in step 4
+3. Compile `gen_build` by running `msbuild gen_build.sln` (or compiling in VS)
+4. Run `gen_build -vs [2008|2010|2012|2013|2015] -v 1.2.3.4`.  This will generate the build system in the `bld` directory
+   - `-vs` is the version of Visual Studio that you wish the generated build files to target.
+   - `-v` is the version of the package (optional, it will be read from `gen_build.cs` if not specified)
+5. Go into `bld` and run `powershell build.ps1` to build the project
+6. Package the nuspec by going into `bld` and running `powershell pack.ps1`.
+   - You can also package it individually with `nuget\NuGet.exe pack SQLitePCL.raw.nuspec` or `nuget\NuGet.exe pack SQLitePCL.raw_basic.nuspec`, etc, depending on which package you want.
 
 ## Is this open source?
 
