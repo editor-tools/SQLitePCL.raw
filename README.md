@@ -4,9 +4,10 @@
 SQLitePCL.raw is a Portable Class Library (PCL) for low-level (raw)
 access to SQLite.
 
-## Prequisites
+## Prequisites for GitHub for Visual Studio targeted builds
 
-- 
+- Visual Studio 2012
+- Specify `-vs 2012` when generating the build files in step 4 of the build instructions
 
 ## Building
 
