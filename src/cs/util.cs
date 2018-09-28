@@ -1,5 +1,5 @@
 ﻿/*
-   Copyright 2014-2015 Zumero, LLC
+   Copyright 2014-2016 Zumero, LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -28,6 +28,97 @@ namespace SQLitePCL
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Collections.Generic;
+
+    internal static class hooks
+    {
+	    internal class info
+	    {
+		    // TODO note that sqlite function names can be case-insensitive.  but we're using
+		    // a dictionary with a string key to keep track of them.  this has the potential
+		    // to cause problems.  fixing it with a case-insensitive string comparer is not
+		    // correct here, since the .NET notion of case-insensitivity is different (more
+		    // complete) than SQLite's notion.
+
+			public Dictionary<string, collation_hook_info> collation = new Dictionary<string, collation_hook_info>();
+			public Dictionary<string, scalar_function_hook_info> scalar = new Dictionary<string, scalar_function_hook_info>();
+			public Dictionary<string, agg_function_hook_info> agg = new Dictionary<string, agg_function_hook_info>();
+			public update_hook_info update;
+			public rollback_hook_info rollback;
+			public commit_hook_info commit;
+			public trace_hook_info trace;
+			public progress_handler_hook_info progress;
+			public profile_hook_info profile;
+            public authorizer_hook_info authorizer;
+
+		    public void free()
+		    {
+			foreach (var h in collation.Values) h.free();
+			foreach (var h in scalar.Values) h.free();
+			foreach (var h in agg.Values) h.free();
+			if (update!=null) update.free();
+			if (rollback!=null) rollback.free();
+			if (commit!=null) commit.free();
+			if (trace!=null) trace.free();
+			if (progress!=null) progress.free();
+			if (profile!=null) profile.free();
+			if (authorizer!=null) authorizer.free();
+		    }
+	    }
+
+        internal static log_hook_info log;
+
+#if NO_CONCURRENTDICTIONARY
+        private static Dictionary<IntPtr,info> _hooks_by_db = new Dictionary<IntPtr,info>();
+#else
+        private static System.Collections.Concurrent.ConcurrentDictionary<IntPtr,info> _hooks_by_db = new System.Collections.Concurrent.ConcurrentDictionary<IntPtr,info>();
+#endif
+
+	internal static info getOrCreateFor(IntPtr db)
+	{
+		info i;
+#if NO_CONCURRENTDICTIONARY
+		lock (_hooks_by_db)
+		{
+			if (!_hooks_by_db.TryGetValue(db, out i))
+			{
+				i = new info();
+				_hooks_by_db[db] = i;
+			}
+		}
+#else
+                i = _hooks_by_db.GetOrAdd(db, (unused) => new info());
+#endif
+                return i;
+	}
+
+	internal static void removeFor(IntPtr db)
+	{
+		info i;
+#if NO_CONCURRENTDICTIONARY
+		lock (_hooks_by_db)
+		{
+			if (_hooks_by_db.TryGetValue(db, out i))
+			{
+				_hooks_by_db.Remove(db);
+			}
+			else
+			{
+				i = null;
+			}
+		}
+		if (i != null)
+		{
+			i.free();
+		}
+#else
+                if (_hooks_by_db.TryRemove(db, out i))
+                {
+	            i.free();
+                }
+#endif
+	}
+    }
 
     internal class util
     {
@@ -94,6 +185,49 @@ namespace SQLitePCL
             return result;
         }
     }
+
+    internal class log_hook_info
+    {
+        private delegate_log _func;
+        private object _user_data;
+        private GCHandle _h;
+
+        internal log_hook_info(delegate_log func, object v)
+        {
+            _func = func;
+            _user_data = v;
+
+            _h = GCHandle.Alloc(this);
+        }
+
+        internal IntPtr ptr
+        {
+            get
+            {
+                return (IntPtr) _h;
+            }
+        }
+
+        internal static log_hook_info from_ptr(IntPtr p)
+        {
+            GCHandle h = (GCHandle) p;
+            log_hook_info hi = h.Target as log_hook_info;
+            // TODO assert(hi._h == h)
+            return hi;
+        }
+
+        internal void call(int rc, string msg)
+        {
+            _func(_user_data, rc, msg);
+        }
+
+        internal void free()
+        {
+            _func = null;
+            _user_data = null;
+            _h.Free();
+        }
+    };
 
     internal class commit_hook_info
     {
@@ -637,6 +771,49 @@ namespace SQLitePCL
             _h.Free();
         }
 
+    };
+
+    internal class authorizer_hook_info
+    {
+        private delegate_authorizer _func;
+        private object _user_data;
+        private GCHandle _h;
+
+        internal authorizer_hook_info(delegate_authorizer func, object v)
+        {
+            _func = func;
+            _user_data = v;
+
+            _h = GCHandle.Alloc(this);
+        }
+
+        internal IntPtr ptr
+        {
+            get
+            {
+                return (IntPtr)_h;
+            }
+        }
+
+        internal static authorizer_hook_info from_ptr(IntPtr p)
+        {
+            GCHandle h = (GCHandle)p;
+            authorizer_hook_info hi = h.Target as authorizer_hook_info;
+            // TODO assert(hi._h == h)
+            return hi;
+        }
+
+        internal int call(int action_code, string param0, string param1, string dbName, string inner_most_trigger_or_view)
+        {
+            return _func(_user_data, action_code, param0, param1, dbName, inner_most_trigger_or_view);
+        }
+
+        internal void free()
+        {
+            _func = null;
+            _user_data = null;
+            _h.Free();
+        }
     };
 
 }

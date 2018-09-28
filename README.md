@@ -2,9 +2,11 @@
 # SQLitePCL.raw
 
 SQLitePCL.raw is a Portable Class Library (PCL) for low-level (raw)
-access to SQLite.
+access to SQLite. License:  Apache License v2.
 
-## Prequisites for GitHub for Visual Studio targeted builds
+# Building for GitHub for Visual Studio
+
+## Prequisites
 
 - Visual Studio 2012
 - Specify `-vs 2012` when generating the build files in step 4 of the build instructions
@@ -21,89 +23,357 @@ access to SQLite.
 6. Package the nuspec by going into `bld` and running `powershell pack.ps1`.
    - You can also package it individually with `nuget\NuGet.exe pack SQLitePCL.raw.nuspec` or `nuget\NuGet.exe pack SQLitePCL.raw_basic.nuspec`, etc, depending on which package you want.
 
-## Is this open source?
+---
 
-Yes.  Apache License v2.
+# TLDR
 
-## What is a Portable Class Library (PCL)?
+Add this package:
 
-A Portable Class Library is not merely a class library which happens to avoid using
-things that are not portable.  The PCL concept also includes tooling support.
-You can tell the compiler which .NET targets you want to support (a profile) 
-and then it will complain at you if you try to use something that wouldn't
-work.
+    SQLitePCLRaw.bundle_e_sqlite3 
+    
+And call this function:
 
-## Which flavor of PCL is this?
+    SQLitePCL.Batteries_V2.Init()
 
-See [my blog entry](http://www.ericsink.com/entries/pcl_bait_and_switch.html) about the two different ways of doing PCLs.
+# Compatibility
 
-SQLitePCL.raw uses the Bait and Switch approach.  It provides a portable assembly (the Bait)
-which can be referenced by projects that are libraries.  When building an executable or app,
-reference the appropriate platform-specific alternative.
+SQLitePCL.raw should work just about anywhere you want
+it to, including:
 
-## Which platform assemblies are provided in this library?
+- Xamarin.Android
+- Xamarin.iOS
+- UWP
+- Windows Phone 8.1
+- .NET 4.5
+- .NET 4.0
+- .NET 3.5
+- Linux
+- MacOS
+- NetStandard 1.1
+- Windows Phone 8 (with limitations)
+- Windows Phone 8.1 Silverlight (with limitations)
 
-In the pcl subdirectory, each csproj with a name of the form SQLitePCL.platform.\* contains an implementation
-of a platform assembly.
+(I have received a pull request for WatchOS support, but it's not merged yet.)
 
-The following platforms are currently supported:
+These packages should be fully compatible with NuGet 2.x or 3.x, either 
+packages.config or project.json.
 
- * .NET 4.5 on Windows or Mac OS X
+# What's new in 1.0
 
- * Windows Phone 8
+In terms of the code, not much. But the builds and packaging have changed a lot.
 
- * Windows Phone 8.1, both SL and RT flavors
+At a very high level, this is the release that happened because Android N fouled everything up.
 
- * WinRT
+At a slightly-less-high level, the fixes and new features are:
 
- * Xamarin.iOS, both Classic and Unified
+- All package names now begin with SQLitePCLRaw. For example, the main package is now called SQLitePCLRaw.core.
+- Support netstandard
+- Switch all the tests to xUnit.net
+- Fix problems with UWP apps failing validation
+- Support winsqlite3.dll (the one built-in to Windows 10)
+- Fix and refactor things where Android N broke my old assumptions
+- Provide an easier way for people to use custom sqlite3 builds
+- Improve my automated tests to test the nuget packaging, not just the code
+- Make the iOS sqlite builds compatible back to iOS 6
+- Be compatible with strong naming
+- sqlite3\_threadsafe (#92)
+- Update e\_sqlite3 (the sqlite builds which I bundle) to 3.14.1
 
- * Xamarin.Android
+# New package names for release 1.0
 
-Some of these platforms have more than one implementation of the platform assembly,
-for reasons explained later in this README.
+With the release of version 1.0, all the nuget package ids
+are different.  The are all prefixed with "SQLitePCLRaw.".
 
-## Is this available in NuGet?
+The main package is SQLitePCLRaw.core, previously called SQLitePCL.raw
 
-Yes.  See SQLitePCL.raw\_basic
+# Old packages ids
 
-## Is this available in the Xamarin Component Store?
+Before 1.0, the package ids were
 
-No.
+- SQLitePCL.raw
+- SQLitePCL.raw\_basic
+- SQLitePCL.ugly
+- SQLitePCL.plugin.\*
+- SQLitePCL.native.\*
+- SQLitePCL.bundle\*
 
-## What is the state of this code?  Is it completely done?
+All of these packages are being deprecated.
 
-(I'm not sure it'll ever be completely done, but...) 
+Note:  Once a package (like sqlite-net-pcl, for example) has migrated to the 1.0 release, 
+developers using
+that package may need to explicitly remove these old packages
+from their build.
 
-The code itself is in pretty good shape.
-There are some more tests I want to write.  There are some platform configurations
-I still want to support.
+# Migrating to 1.0
 
-Look in todo.txt for an informal working list of tasks pending.  This file is not
-always kept terribly current.  :-)
+Aside from the all new package ids, the 1.0 release contains some 
+minor breaking changes to the way things get initialized.
+Migrating from previous versions will in some cases require an
+extra initialization call.  The actual API for talking to SQLite
+has not changed.
+
+# SemVer
+
+Starting with the 1.0 release, I will be attempting to follow
+SemVer for the verson numbers.
+
+# How the packaging works
+
+The main assembly is SQLitePCLRaw.core.  A PCL project would
+need to only take a dep on this one.  All the other packages
+deal with initialization and the question of which instance 
+of the native SQLite library is involved.
+
+# Many different native SQLite libraries
+
+In some cases, apps use a SQLite library which is externally
+provided.  In other cases, an instance of the SQLite library
+is bundled with the app.
+
+- On iOS, there is a SQLite library provided with the operating
+system, and apps are allowed to use it.
+
+- Android also has a SQLite library, and prior to Android N,
+apps were allowed to use it.
+
+- Recent versions of Windows 10 have a SQLite library.
+
+- In some cases, people want to use SQLCipher as their SQLite
+library.
+
+- Sometimes people want to compile and bundle their own custom SQLite
+library.
+
+SQLitePCL.raw supports any of these cases.
+
+# Providers
+
+In this context, a "provider" is the piece of code which tells
+SQLitePCL.raw which instance of the native code to use.
+
+As of 1.0, the SQLitePCLRaw.core package contains no providers.
+This is the essence of how things have changed in the last few
+releases.
+
+- In 0.8.x and prior, the main package tried to contain all the
+providers that might be needed.  But the package was getting
+enormous, and the use of funky MSBuild properties was a
+frustrating way to do configuration.
+
+- In 0.9.x, the main package contained one default provider
+as a fallback, and all the others were moved into packages
+named SQLitePCL.plugin.\*.  But this was problematic for
+certain UWP scenarios (which could not handle unused
+providers in the build), and Android N (where the so-called
+default provider is always the wrong thing to use).
+
+- In 1.0, the main package contains no providers, and
+requires that one be, er, provided.
+
+More specifically, a "provider" is an implementation of
+the ISQLite3Provider interface.  It is necessary to call
+SQLitePCL.raw.SetProvider() to initialize things.
+
+All the various providers are in packages with ids of
+the form SQLitePCLRaw.provider.\*.
+
+# Provider names
+
+Providers are named for the exact string which is used
+for DllImport (pinvoke).
+
+For example:
+
+    [DllImport("foo")]
+    public static extern int whatever();
+
+This pinvoke will look for a library called "foo".
+
+- On Windows, that means "foo.dll".
+- On Unix, "libfoo.so"
+- On MacOS, "libfoo.dylib"
+
+(The actual rules are more complicated than this.)
+
+So, a provider where all the DllImport attributes were
+using "foo", would have "foo" in its package id and
+in its class name.
+
+# Included providers
+
+SQLitePCL.raw includes the following providers:
+
+- "sqlite3" -- This matches the name of the system-provided SQLite
+on iOS (which is fine), and Android (which is not allowed).  It
+also matches the name of the SQLite library provided by the
+extension SDKs in the Visual Studio gallery.  And it matches
+the official name of builds provided at sqlite.org.
+
+- "sqlcipher" -- Intended to be used for SQLCipher builds with
+(what is assumed to be) the most common form of the library name.
+
+- "winsqlite3" -- Matches the name of the library provided by
+recent builds of Windows 10.
+
+- "e\_sqlite3" -- This is the name of all SQLite builds provided
+as part of this project.
+
+- "custom\_sqlite3" -- If you want to build your own SQLite library,
+give it this name and use this provider.
+
+- "sqlite3\_xamarin" -- Matches the name of the SQLite library provided
+by Xamarin.Android for use with Mono.Data.Sqlite.  This is only for
+situations where you need to use SQLitePCL.raw to work with the
+same SQLite instance as Mono.Data.Sqlite on Android.
+
+# SQLitePCLRaw.lib
+
+A provider is the bridge between the core assembly and the native
+code, but the provider does not contain the native code itself.
+
+In some cases (like "winsqlite3") this is because it does not need
+to.  The provider is merely a bridge to a SQLite library instance
+which is known (or assumed) to be somewhere else.
+
+But in cases where the app is going to be bundling the native
+code library, those bits need to make it into your build output
+somehow.
+
+Packages with ids named "SQLitePCLRaw.lib.\*" contain native
+code.  This project distributes two kinds of these packages:
+
+- "sqlcipher" -- These are re-packaging of the SQLCipher builds
+maintained by Couchbase.
+
+- "e\_sqlite3" -- These are builds of the SQLite library provided
+for the convenience of SQLitePCL.raw users.  I try to keep them
+reasonably current with respect to SQLite itself (www.sqlite.org).
+The build configuration is the same for every platform, and includes
+full-text-search.  If you are building an app on multiple platforms
+and you want to use the same recent version of SQLite on each platform,
+e\_sqlite3 should be a good choice.
+
+# A trio of packages
+
+So, using SQLitePCL.raw means you need to add two 
+packages:
+
+- SQLitePCLRaw.core
+- SQLitePCLRaw.provider.whatever
+
+And in many cases one of these as well:
+
+- SQLitePCLRaw.lib.whatever
+
+And in your platform-specific code, you need to call:
+
+    SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_whatever());
+
+But the word "whatever" is different on each platform.
+For example, on Android, using e\_sqlite3, you need:
+
+- SQLitePCLRaw.core
+- SQLitePCLRaw.provider.e\_sqlite3.android
+- SQLitePCLRaw.lib.e\_sqlite3.android
+
+and you need to call:
+
+    SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
+
+# Bundles
+
+To make things easier, SQLitePCL.raw includes "bundle" packages.
+These packages automatically bring in the right dependencies for
+each platform.  They also provide a single Init() call that is the
+same for all platforms.
+
+Think of a bundle as way of giving a "batteries included" experience.
+
+So for example, SQLitePCLRaw.bundle\_e\_sqlite3 is a bundle that
+uses e\_sqlite3 in all cases.  Just add this package, and call:
+
+    SQLitePCL.Batteries_V2.Init();
+
+SQLitePCLRaw.bundle\_green is a bundle that
+uses e\_sqlite3 everywhere except iOS, where the system-provided
+SQLite is used.
+
+SQLitePCLRaw.bundle\_sqlcipher does not exist yet, but probably
+will soon.
+
+The purpose of the bundles is to make things easier by taking
+away flexibility and control.  You don't have to use them.
+
+# e\_sqlite3 builds for Windows
+
+For Windows, I have a lib.e\_sqlite3 package for each platform
+toolset:
+
+- v110
+- v110\_wp80
+- v110\_xp
+- v120
+- v120\_wp81
+- v140
+
+In most desktop scenarios, v110\_xp is what people want.  It
+contains a statically linked C runtime lib.  This is the one
+that gets included by bundle\_e\_sqlite3 for net45.
+
+For UWP, v140 is the one you want.
+
+In general, nobody cares about this.  The bundles do the right thing.
+But the options are there for people who need fine-grained control
+over such things.
+
+# e\_sqlite3 builds for Linux and Mac
+
+SQLitePCLRaw.lib.e\_sqlite3 packages are provided for
+Linux and Mac.  Both bundle\_green and bundle\_e\_sqlite3
+have a dependency on these for net35/net40/net45, so
+that these bundles will "do the right thing" when used
+with Mono on Linux and Mac.
+
+# NetStandard
+
+Release 1.0 supports netstandard.  However, it also still
+includes some PCL profiles and platform-specific builds,
+some of which *should* be unnecessary.  I may at some point
+simplify things by removing redundant stuff and letting
+netstandard be used everywhere it can be.
+
+# Windows Phone Silverlight
+
+Two packages are provided for compatibility with Windows Phone 8.0 and Windows Phone 8.1 Silverlight:
+
+- SQLitePCLRaw.provider.e\_sqlite3.wp80
+- SQLitePCLRaw.lib.e\_sqlite3.v110\_wp80
+
+These environments do not support pinvoke, so it's a
+special case.  The e\_sqlite3 provider is the only one
+available.
+
+Note that bundle\_green and bundle\_e\_sqlite3 both support Windows Phone Silverlight.
+
+# CONTENT BELOW THIS LINE IS NOT FULLY UPDATED FOR 1.0
 
 ## How do I build this?
 
 For all practical purposes, it's impossible.  :-)
 
-But if you're dying to try it, look at gen\_build.cs.  It's a script which
-generates the build system.  I build everything on Windows.  The script
-will expect you to have Visual Studio 2012 *and* Visual Studio 2013, 
-the latter with Update 2 installed for the Phone 8.1 stuff.  You also
-need the Xamarin stuff installed.  And the relevant Android SDK(s).
+gen\_build.cs is a C# script which generates a solution with all the project configurations in the bld folder, along with other files for the build system.
 
-## Which PCL profile is supported?
+On my build machine, I have Visual Studio 2012 *and* Visual Studio 2013 (update 2) *and* Visual Studio 2015 and Xamarin Android + iOS and  
+the relevant Android SDK(s).
 
-The build system contains projects to build the PCL with profile 78, 
-profile 158, and profile 259.  Others might work as well, but those are the ones I 
-have tried.
+build\_mac.sh builds the iOS libraries and has to be run on the mac.
+The resulting assemblies are actually committed to the repository so the main build
+process can use them.  Run apple/libs/mac/cp\_mac.ps1 to copy the
+necessary files over to the bld directory.
 
-The test suites are configured to use the profile 78 version in most places, but
-profile 259 for Windows Phone 8.1..
-
-The main reason to keep profile 158 is because MvvmCross is using it.  If they
-end up switching to the new reflection APIs and profile 259, then 158 won't be
-very important here either.  Folks are saying that profile 259 is the new 78.
+Builds for sqlite and sqlcipher for Mac, iOS, and Android also happen
+on a Mac.  See the sh files in the apple directory.  For Android,
+run ndk-build in android/sqlite3.
 
 ## Can this library be used to write a mobile app?
 
@@ -164,17 +434,6 @@ set of SQLite in an idiomatic and *pretty* C# API.
 Interesting features include the ability to iterate through query result sets using LINQ, support for binary
 streaming of data in and out of SQLite using .NET streams, and a powerful async API built on the RX framework."
 
-## How does this compare to the SQLite stuff in MvvmCross?
-
-Same story.  MvvmCross is using a PCL-ified fork of sqlite-net.
-I would welcome MvvmCross to use my version of sqlite-net built on SQLitePCL.raw.
-
-## How does this compare to SQLite.Net-PCL?
-
-[SQLite.Net-PCL](https://github.com/oysteinkrog/SQLite.Net-PCL) appears to be a PCL fork of sqlite-net,
-apparently with a bit more proactive stance toward eliminating ifdefs.  
-I don't know much else about it.
-
 ## How does this compare to System.Data.SQLite?
 
 [System.Data.SQLite](http://system.data.sqlite.org) is an ADO.NET-style SQLite wrapper developed by the
@@ -186,6 +445,11 @@ it does a fantastic job of the SQLite side of things.  But it is not at all mobi
 Mono.Data.Sqlite is an ADO.NET-style SQLite wrapper which is built into Mono and the Xamarin
 platform.  It shares a common ancestry with System.Data.SQLite, as both began as forks from
 the same code.
+
+## How does this compare to Microsoft.Data.Sqlite?
+
+[Microsoft.Data.Sqlite](https://github.com/aspnet/Microsoft.Data.Sqlite) is an 
+ADO.NET-style SQLite wrapper which is part of the ASP.NET 5 / EF7 effort at Microsoft.
 
 ## How does this compare to SQLitePCL?
 
@@ -199,49 +463,6 @@ However, this is not the the sort of fork which is created for the purpose of
 producing a pull request.  The changes I've made are so extensive that I do not
 plan to submit a pull request unless one is requested.  I plan to maintain this
 code going forward.
-
-## So how is SQLitePCL.raw different from what you started with?
-
-Since beginning with the SQLitePCL code, I've made a bunch of improvements to
-the build and its supported platforms:
-
- * Added support for more PCL profiles
-
- * Added build support for Xamarin.iOS
-
- * Added build support for Xamarin.Android
-
- * Added support for Windows Phone 8.1, RT and SL
-
- * Updated WinRT to support both P/Invoke and C++ Interop
-
- * Updated Net45 to support both P/Invoke and C++ Interop
-
- * Added a new set of automated test projects, sharing the same test code for MS Test and NUnit
-
- * Simplified the platform injection interfaces from 3 down to 1
-
- * Reorganized the tree to eliminate code duplication
-
- * Lots of bug fixes
-
-I've also implemented nearly the entire SQLite API, including the following highlights which were not present in the original code:
-
- * Have SQLite call a .NET delegate when a transaction ends (sqlite3\_commit\_hook, sqlite3\_rollback\_hook)
-
- * Give SQLite a .NET delegate to be called for diagnostic purposes (sqlite3\_trace, sqlite3\_profile)
-
- * Write custom functions and collations in managed code (sqlite3\_create\_function, sqlite3\_create\_collation)
-
- * Access SQLite blobs using the streaming API, to avoid the requirement of reading the entire blob into memory (sqlite3\_blob\_etc)
-
- * Obtain the SQLite extended result codes and error messages
-
- * Use the SQLite backup API (sqlite3\_backup\_etc)
-
- * Ask the SQLite library for information about itself (sqlite3\_compileoption_*, sqlite3\_libversion, etc)
-
-Bottom line, this library is a robust low-level wrapper which stays very true to the SQLite library itself, while presenting a portable API to the layer above.
 
 ## So what is the architecture of this library?
 
@@ -397,13 +618,6 @@ convention from my Unix days.
 
 Also, sometimes when I am driving alone in my truck, I listen to country music.
 
-## What are the SQLitePCL.Test.\* projects?
-
-The test suite is a shared code file located in src/test/test\_cases.cs.
-Each platform has a test project.  For .NET, Windows Phone, and WinRT,
-I use the unit testing features of Visual Studio (MS Test).  For iOS and Android,
-I use the unit testing features built into Xamarin Studio (NUnit).
-
 ## Why do some tests fail on iOS and/or Android?
 
 Because the version of SQLite preinstalled on the device or emulator 
@@ -416,49 +630,9 @@ SQLite 3.7.11 or older.
 In practice, these issues are commonly handled by avoiding the use of new-ish
 SQLite functions.  Alternatively, you can bundle a recent version of SQLite
 into your mobile app rather than using the build that is preinstalled on the
-platform.
+platform.  (See below for how to get SQLitePCL.raw to do this for you.)
 
-## Why do some of the platforms have multiple platform assemblies?
-
-Because there are multiple options available in how the native SQLite code
-gets included in an app.
-
-First of all, there are two ways to call native code from C#:  
-
-  1.  P/Invoke
-
-  2.  C++ Interop
-
-Xamarin platforms only support P/Invoke.  The Silverlight flavors of 
-Windows Phone 8 only support C++ Interop.
-The other platforms support both.
-
-P/Invoke requires a platform-native shared library (such as a .dll or .so).
-
-The C++ Interop builds include the SQLite bits directly, resulting in a mixed mode assembly.
-
-On iOS and Android, a sqlite3 library is included as part of the OS.  Most people just
-use it.  
-
-Some people want/need to include a SQLite version bundled as part of their app.
-Reasons to do this include:
-
-  1.  They want something more recent than the version provided with iOS/Android.
-
-  2.  They're on WinRT or something else that doesn't bundle SQLite at all.
-
-  3.  They need a custom SQLite, built with compile options customized for their situation.
-
-  4.  They are substituting SQLCipher as their implementation of SQLite.
-
-And then, consider the fact that for a single processor (Intel, ARM, etc) the
-native SQLite code can be either 32 bit or 64 bit,
-and the distinction is important.
-
-This library wants to support all of these use cases and hide all the details behind
-a PCL.
-
-## But why?  Why are you making this so complicated?
+## Why are you making this so complicated?
 
 Hey, don't blame me.  I'm not making this complicated.  I'm just trying to
 support all the valid use cases.
@@ -482,10 +656,8 @@ On iOS/Android, you have two choices:
 
 On other platforms, make sure you are including exactly one instance of the SQLite library.
 
-## Is this compatible with SQLCipher?
+## On WinRT-ish platforms, why do I get "Unable to load DLL 'sqlite3': The specified module could not be found." ?
 
-Yes.  Sort of.
-
-An upcoming release will make the SQLCipher use case easier.
-
+When using any of the RT flavored forms of Windows (Windows Store, Metro, WP81, etc) you must add a
+reference to the Visual C++ runtime extension SDK.
 

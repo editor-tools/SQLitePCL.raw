@@ -1,5 +1,5 @@
 /*
-   Copyright 2014-2015 Zumero, LLC
+   Copyright 2014-2016 Zumero, LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -26,60 +26,90 @@
 namespace SQLitePCL
 {
     using System;
+    using System.Collections.Generic;
 
     public static class raw
     {
-        private static ISQLite3Provider _imp = new SQLite3Provider();
+        private static ISQLite3Provider _imp;
+        private static bool _frozen;
 
-        public const int SQLITE_UTF8                = 1;
-        public const int SQLITE_UTF16LE             = 2;
-        public const int SQLITE_UTF16BE             = 3;
-        public const int SQLITE_UTF16               = 4;  /* Use native byte order */
-        public const int SQLITE_ANY                 = 5;  /* sqlite3_create_function only */
-        public const int SQLITE_UTF16_ALIGNED       = 8;  /* sqlite3_create_function only */
+        static raw()
+        {
+            _imp = new SQLite3Provider_bait();
+            _frozen = false;
+        }
 
+        static public void SetProvider(ISQLite3Provider imp)
+        {
+            if (_frozen) return;
+            int version = imp.sqlite3_libversion_number();
+#if not // don't do this, because it ends up calling sqlite3_initialize
+		IntPtr db;
+		int rc;
+	        rc = imp.sqlite3_open(":memory:", out db);
+		if (rc != 0) throw new Exception();
+		rc = imp.sqlite3_close(db);
+		if (rc != 0) throw new Exception();
+#endif
+            _imp = imp;
+        }
+
+        static public void FreezeProvider(bool b = true)
+        {
+            _frozen = b;
+        }
+
+        public const int SQLITE_UTF8 = 1;
+        public const int SQLITE_UTF16LE = 2;
+        public const int SQLITE_UTF16BE = 3;
+        public const int SQLITE_UTF16 = 4;  /* Use native byte order */
+        public const int SQLITE_ANY = 5;  /* sqlite3_create_function only */
+        public const int SQLITE_UTF16_ALIGNED = 8;  /* sqlite3_create_function only */
+
+        public const int SQLITE_DETERMINISTIC = 0x800;
+		
         public const int SQLITE_CONFIG_SINGLETHREAD = 1;  /* nil */
-        public const int SQLITE_CONFIG_MULTITHREAD  = 2;  /* nil */
-        public const int SQLITE_CONFIG_SERIALIZED   = 3;  /* nil */
-        public const int SQLITE_CONFIG_MALLOC       = 4;  /* sqlite3_mem_methods* */
-        public const int SQLITE_CONFIG_GETMALLOC    = 5;  /* sqlite3_mem_methods* */
-        public const int SQLITE_CONFIG_SCRATCH      = 6;  /* void*, int sz, int N */
-        public const int SQLITE_CONFIG_PAGECACHE    = 7;  /* void*, int sz, int N */
-        public const int SQLITE_CONFIG_HEAP         = 8;  /* void*, int nByte, int min */
-        public const int SQLITE_CONFIG_MEMSTATUS    = 9;  /* boolean */
-        public const int SQLITE_CONFIG_MUTEX       = 10;  /* sqlite3_mutex_methods* */
-        public const int SQLITE_CONFIG_GETMUTEX    = 11;  /* sqlite3_mutex_methods* */
-        /* previously SQLITE_CONFIG_CHUNKALLOC 12 which is now unused. */ 
-        public const int SQLITE_CONFIG_LOOKASIDE   = 13;  /* int int */
-        public const int SQLITE_CONFIG_PCACHE      = 14;  /* no-op */
-        public const int SQLITE_CONFIG_GETPCACHE   = 15;  /* no-op */
-        public const int SQLITE_CONFIG_LOG         = 16;  /* xFunc, void* */
-        public const int SQLITE_CONFIG_URI         = 17;  /* int */
-        public const int SQLITE_CONFIG_PCACHE2     = 18;  /* sqlite3_pcache_methods2* */
-        public const int SQLITE_CONFIG_GETPCACHE2  = 19;  /* sqlite3_pcache_methods2* */
-        public const int SQLITE_CONFIG_COVERING_INDEX_SCAN= 20;  /* int */
-        public const int SQLITE_CONFIG_SQLLOG      = 21;  /* xSqllog, void* */
+        public const int SQLITE_CONFIG_MULTITHREAD = 2;  /* nil */
+        public const int SQLITE_CONFIG_SERIALIZED = 3;  /* nil */
+        public const int SQLITE_CONFIG_MALLOC = 4;  /* sqlite3_mem_methods* */
+        public const int SQLITE_CONFIG_GETMALLOC = 5;  /* sqlite3_mem_methods* */
+        public const int SQLITE_CONFIG_SCRATCH = 6;  /* void*, int sz, int N */
+        public const int SQLITE_CONFIG_PAGECACHE = 7;  /* void*, int sz, int N */
+        public const int SQLITE_CONFIG_HEAP = 8;  /* void*, int nByte, int min */
+        public const int SQLITE_CONFIG_MEMSTATUS = 9;  /* boolean */
+        public const int SQLITE_CONFIG_MUTEX = 10;  /* sqlite3_mutex_methods* */
+        public const int SQLITE_CONFIG_GETMUTEX = 11;  /* sqlite3_mutex_methods* */
+                                                       /* previously SQLITE_CONFIG_CHUNKALLOC 12 which is now unused. */
+        public const int SQLITE_CONFIG_LOOKASIDE = 13;  /* int int */
+        public const int SQLITE_CONFIG_PCACHE = 14;  /* no-op */
+        public const int SQLITE_CONFIG_GETPCACHE = 15;  /* no-op */
+        public const int SQLITE_CONFIG_LOG = 16;  /* xFunc, void* */
+        public const int SQLITE_CONFIG_URI = 17;  /* int */
+        public const int SQLITE_CONFIG_PCACHE2 = 18;  /* sqlite3_pcache_methods2* */
+        public const int SQLITE_CONFIG_GETPCACHE2 = 19;  /* sqlite3_pcache_methods2* */
+        public const int SQLITE_CONFIG_COVERING_INDEX_SCAN = 20;  /* int */
+        public const int SQLITE_CONFIG_SQLLOG = 21;  /* xSqllog, void* */
 
-        public const int SQLITE_OPEN_READONLY         = 0x00000001;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_READWRITE        = 0x00000002;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_CREATE           = 0x00000004;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_DELETEONCLOSE    = 0x00000008;  /* VFS only */
-        public const int SQLITE_OPEN_EXCLUSIVE        = 0x00000010;  /* VFS only */
-        public const int SQLITE_OPEN_AUTOPROXY        = 0x00000020;  /* VFS only */
-        public const int SQLITE_OPEN_URI              = 0x00000040;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_MEMORY           = 0x00000080;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_MAIN_DB          = 0x00000100;  /* VFS only */
-        public const int SQLITE_OPEN_TEMP_DB          = 0x00000200;  /* VFS only */
-        public const int SQLITE_OPEN_TRANSIENT_DB     = 0x00000400;  /* VFS only */
-        public const int SQLITE_OPEN_MAIN_JOURNAL     = 0x00000800;  /* VFS only */
-        public const int SQLITE_OPEN_TEMP_JOURNAL     = 0x00001000;  /* VFS only */
-        public const int SQLITE_OPEN_SUBJOURNAL       = 0x00002000;  /* VFS only */
-        public const int SQLITE_OPEN_MASTER_JOURNAL   = 0x00004000;  /* VFS only */
-        public const int SQLITE_OPEN_NOMUTEX          = 0x00008000;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_FULLMUTEX        = 0x00010000;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_SHAREDCACHE      = 0x00020000;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_PRIVATECACHE     = 0x00040000;  /* Ok for sqlite3_open_v2() */
-        public const int SQLITE_OPEN_WAL              = 0x00080000;  /* VFS only */
+        public const int SQLITE_OPEN_READONLY = 0x00000001;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_READWRITE = 0x00000002;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_CREATE = 0x00000004;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_DELETEONCLOSE = 0x00000008;  /* VFS only */
+        public const int SQLITE_OPEN_EXCLUSIVE = 0x00000010;  /* VFS only */
+        public const int SQLITE_OPEN_AUTOPROXY = 0x00000020;  /* VFS only */
+        public const int SQLITE_OPEN_URI = 0x00000040;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_MEMORY = 0x00000080;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_MAIN_DB = 0x00000100;  /* VFS only */
+        public const int SQLITE_OPEN_TEMP_DB = 0x00000200;  /* VFS only */
+        public const int SQLITE_OPEN_TRANSIENT_DB = 0x00000400;  /* VFS only */
+        public const int SQLITE_OPEN_MAIN_JOURNAL = 0x00000800;  /* VFS only */
+        public const int SQLITE_OPEN_TEMP_JOURNAL = 0x00001000;  /* VFS only */
+        public const int SQLITE_OPEN_SUBJOURNAL = 0x00002000;  /* VFS only */
+        public const int SQLITE_OPEN_MASTER_JOURNAL = 0x00004000;  /* VFS only */
+        public const int SQLITE_OPEN_NOMUTEX = 0x00008000;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_FULLMUTEX = 0x00010000;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_SHAREDCACHE = 0x00020000;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_PRIVATECACHE = 0x00040000;  /* Ok for sqlite3_open_v2() */
+        public const int SQLITE_OPEN_WAL = 0x00080000;  /* VFS only */
 
         public const int SQLITE_INTEGER = 1;
         public const int SQLITE_FLOAT = 2;
@@ -119,125 +149,130 @@ namespace SQLitePCL
         public const int SQLITE_ROW = 100;
         public const int SQLITE_DONE = 101;
 
-        public const int SQLITE_IOERR_READ              = (SQLITE_IOERR | (1<<8));
-        public const int SQLITE_IOERR_SHORT_READ        = (SQLITE_IOERR | (2<<8));
-        public const int SQLITE_IOERR_WRITE             = (SQLITE_IOERR | (3<<8));
-        public const int SQLITE_IOERR_FSYNC             = (SQLITE_IOERR | (4<<8));
-        public const int SQLITE_IOERR_DIR_FSYNC         = (SQLITE_IOERR | (5<<8));
-        public const int SQLITE_IOERR_TRUNCATE          = (SQLITE_IOERR | (6<<8));
-        public const int SQLITE_IOERR_FSTAT             = (SQLITE_IOERR | (7<<8));
-        public const int SQLITE_IOERR_UNLOCK            = (SQLITE_IOERR | (8<<8));
-        public const int SQLITE_IOERR_RDLOCK            = (SQLITE_IOERR | (9<<8));
-        public const int SQLITE_IOERR_DELETE            = (SQLITE_IOERR | (10<<8));
-        public const int SQLITE_IOERR_BLOCKED           = (SQLITE_IOERR | (11<<8));
-        public const int SQLITE_IOERR_NOMEM             = (SQLITE_IOERR | (12<<8));
-        public const int SQLITE_IOERR_ACCESS            = (SQLITE_IOERR | (13<<8));
-        public const int SQLITE_IOERR_CHECKRESERVEDLOCK = (SQLITE_IOERR | (14<<8));
-        public const int SQLITE_IOERR_LOCK              = (SQLITE_IOERR | (15<<8));
-        public const int SQLITE_IOERR_CLOSE             = (SQLITE_IOERR | (16<<8));
-        public const int SQLITE_IOERR_DIR_CLOSE         = (SQLITE_IOERR | (17<<8));
-        public const int SQLITE_IOERR_SHMOPEN           = (SQLITE_IOERR | (18<<8));
-        public const int SQLITE_IOERR_SHMSIZE           = (SQLITE_IOERR | (19<<8));
-        public const int SQLITE_IOERR_SHMLOCK           = (SQLITE_IOERR | (20<<8));
-        public const int SQLITE_IOERR_SHMMAP            = (SQLITE_IOERR | (21<<8));
-        public const int SQLITE_IOERR_SEEK              = (SQLITE_IOERR | (22<<8));
-        public const int SQLITE_IOERR_DELETE_NOENT      = (SQLITE_IOERR | (23<<8));
-        public const int SQLITE_IOERR_MMAP              = (SQLITE_IOERR | (24<<8));
-        public const int SQLITE_IOERR_GETTEMPPATH       = (SQLITE_IOERR | (25<<8));
-        public const int SQLITE_IOERR_CONVPATH          = (SQLITE_IOERR | (26<<8));
-        public const int SQLITE_LOCKED_SHAREDCACHE      = (SQLITE_LOCKED |  (1<<8));
-        public const int SQLITE_BUSY_RECOVERY           = (SQLITE_BUSY   |  (1<<8));
-        public const int SQLITE_BUSY_SNAPSHOT           = (SQLITE_BUSY   |  (2<<8));
-        public const int SQLITE_CANTOPEN_NOTEMPDIR      = (SQLITE_CANTOPEN | (1<<8));
-        public const int SQLITE_CANTOPEN_ISDIR          = (SQLITE_CANTOPEN | (2<<8));
-        public const int SQLITE_CANTOPEN_FULLPATH       = (SQLITE_CANTOPEN | (3<<8));
-        public const int SQLITE_CANTOPEN_CONVPATH       = (SQLITE_CANTOPEN | (4<<8));
-        public const int SQLITE_CORRUPT_VTAB            = (SQLITE_CORRUPT | (1<<8));
-        public const int SQLITE_READONLY_RECOVERY       = (SQLITE_READONLY | (1<<8));
-        public const int SQLITE_READONLY_CANTLOCK       = (SQLITE_READONLY | (2<<8));
-        public const int SQLITE_READONLY_ROLLBACK       = (SQLITE_READONLY | (3<<8));
-        public const int SQLITE_READONLY_DBMOVED        = (SQLITE_READONLY | (4<<8));
-        public const int SQLITE_ABORT_ROLLBACK          = (SQLITE_ABORT | (2<<8));
-        public const int SQLITE_CONSTRAINT_CHECK        = (SQLITE_CONSTRAINT | (1<<8));
-        public const int SQLITE_CONSTRAINT_COMMITHOOK   = (SQLITE_CONSTRAINT | (2<<8));
-        public const int SQLITE_CONSTRAINT_FOREIGNKEY   = (SQLITE_CONSTRAINT | (3<<8));
-        public const int SQLITE_CONSTRAINT_FUNCTION     = (SQLITE_CONSTRAINT | (4<<8));
-        public const int SQLITE_CONSTRAINT_NOTNULL      = (SQLITE_CONSTRAINT | (5<<8));
-        public const int SQLITE_CONSTRAINT_PRIMARYKEY   = (SQLITE_CONSTRAINT | (6<<8));
-        public const int SQLITE_CONSTRAINT_TRIGGER      = (SQLITE_CONSTRAINT | (7<<8));
-        public const int SQLITE_CONSTRAINT_UNIQUE       = (SQLITE_CONSTRAINT | (8<<8));
-        public const int SQLITE_CONSTRAINT_VTAB         = (SQLITE_CONSTRAINT | (9<<8));
-        public const int SQLITE_CONSTRAINT_ROWID        = (SQLITE_CONSTRAINT |(10<<8));
-        public const int SQLITE_NOTICE_RECOVER_WAL      = (SQLITE_NOTICE | (1<<8));
-        public const int SQLITE_NOTICE_RECOVER_ROLLBACK = (SQLITE_NOTICE | (2<<8));
-        public const int SQLITE_WARNING_AUTOINDEX       = (SQLITE_WARNING | (1<<8));
+        public const int SQLITE_IOERR_READ = (SQLITE_IOERR | (1 << 8));
+        public const int SQLITE_IOERR_SHORT_READ = (SQLITE_IOERR | (2 << 8));
+        public const int SQLITE_IOERR_WRITE = (SQLITE_IOERR | (3 << 8));
+        public const int SQLITE_IOERR_FSYNC = (SQLITE_IOERR | (4 << 8));
+        public const int SQLITE_IOERR_DIR_FSYNC = (SQLITE_IOERR | (5 << 8));
+        public const int SQLITE_IOERR_TRUNCATE = (SQLITE_IOERR | (6 << 8));
+        public const int SQLITE_IOERR_FSTAT = (SQLITE_IOERR | (7 << 8));
+        public const int SQLITE_IOERR_UNLOCK = (SQLITE_IOERR | (8 << 8));
+        public const int SQLITE_IOERR_RDLOCK = (SQLITE_IOERR | (9 << 8));
+        public const int SQLITE_IOERR_DELETE = (SQLITE_IOERR | (10 << 8));
+        public const int SQLITE_IOERR_BLOCKED = (SQLITE_IOERR | (11 << 8));
+        public const int SQLITE_IOERR_NOMEM = (SQLITE_IOERR | (12 << 8));
+        public const int SQLITE_IOERR_ACCESS = (SQLITE_IOERR | (13 << 8));
+        public const int SQLITE_IOERR_CHECKRESERVEDLOCK = (SQLITE_IOERR | (14 << 8));
+        public const int SQLITE_IOERR_LOCK = (SQLITE_IOERR | (15 << 8));
+        public const int SQLITE_IOERR_CLOSE = (SQLITE_IOERR | (16 << 8));
+        public const int SQLITE_IOERR_DIR_CLOSE = (SQLITE_IOERR | (17 << 8));
+        public const int SQLITE_IOERR_SHMOPEN = (SQLITE_IOERR | (18 << 8));
+        public const int SQLITE_IOERR_SHMSIZE = (SQLITE_IOERR | (19 << 8));
+        public const int SQLITE_IOERR_SHMLOCK = (SQLITE_IOERR | (20 << 8));
+        public const int SQLITE_IOERR_SHMMAP = (SQLITE_IOERR | (21 << 8));
+        public const int SQLITE_IOERR_SEEK = (SQLITE_IOERR | (22 << 8));
+        public const int SQLITE_IOERR_DELETE_NOENT = (SQLITE_IOERR | (23 << 8));
+        public const int SQLITE_IOERR_MMAP = (SQLITE_IOERR | (24 << 8));
+        public const int SQLITE_IOERR_GETTEMPPATH = (SQLITE_IOERR | (25 << 8));
+        public const int SQLITE_IOERR_CONVPATH = (SQLITE_IOERR | (26 << 8));
+        public const int SQLITE_LOCKED_SHAREDCACHE = (SQLITE_LOCKED | (1 << 8));
+        public const int SQLITE_BUSY_RECOVERY = (SQLITE_BUSY | (1 << 8));
+        public const int SQLITE_BUSY_SNAPSHOT = (SQLITE_BUSY | (2 << 8));
+        public const int SQLITE_CANTOPEN_NOTEMPDIR = (SQLITE_CANTOPEN | (1 << 8));
+        public const int SQLITE_CANTOPEN_ISDIR = (SQLITE_CANTOPEN | (2 << 8));
+        public const int SQLITE_CANTOPEN_FULLPATH = (SQLITE_CANTOPEN | (3 << 8));
+        public const int SQLITE_CANTOPEN_CONVPATH = (SQLITE_CANTOPEN | (4 << 8));
+        public const int SQLITE_CORRUPT_VTAB = (SQLITE_CORRUPT | (1 << 8));
+        public const int SQLITE_READONLY_RECOVERY = (SQLITE_READONLY | (1 << 8));
+        public const int SQLITE_READONLY_CANTLOCK = (SQLITE_READONLY | (2 << 8));
+        public const int SQLITE_READONLY_ROLLBACK = (SQLITE_READONLY | (3 << 8));
+        public const int SQLITE_READONLY_DBMOVED = (SQLITE_READONLY | (4 << 8));
+        public const int SQLITE_ABORT_ROLLBACK = (SQLITE_ABORT | (2 << 8));
+        public const int SQLITE_CONSTRAINT_CHECK = (SQLITE_CONSTRAINT | (1 << 8));
+        public const int SQLITE_CONSTRAINT_COMMITHOOK = (SQLITE_CONSTRAINT | (2 << 8));
+        public const int SQLITE_CONSTRAINT_FOREIGNKEY = (SQLITE_CONSTRAINT | (3 << 8));
+        public const int SQLITE_CONSTRAINT_FUNCTION = (SQLITE_CONSTRAINT | (4 << 8));
+        public const int SQLITE_CONSTRAINT_NOTNULL = (SQLITE_CONSTRAINT | (5 << 8));
+        public const int SQLITE_CONSTRAINT_PRIMARYKEY = (SQLITE_CONSTRAINT | (6 << 8));
+        public const int SQLITE_CONSTRAINT_TRIGGER = (SQLITE_CONSTRAINT | (7 << 8));
+        public const int SQLITE_CONSTRAINT_UNIQUE = (SQLITE_CONSTRAINT | (8 << 8));
+        public const int SQLITE_CONSTRAINT_VTAB = (SQLITE_CONSTRAINT | (9 << 8));
+        public const int SQLITE_CONSTRAINT_ROWID = (SQLITE_CONSTRAINT | (10 << 8));
+        public const int SQLITE_NOTICE_RECOVER_WAL = (SQLITE_NOTICE | (1 << 8));
+        public const int SQLITE_NOTICE_RECOVER_ROLLBACK = (SQLITE_NOTICE | (2 << 8));
+        public const int SQLITE_WARNING_AUTOINDEX = (SQLITE_WARNING | (1 << 8));
 
-        public const int SQLITE_CREATE_INDEX          = 1;    /* Index Name      Table Name      */
-        public const int SQLITE_CREATE_TABLE          = 2;    /* Table Name      NULL            */
-        public const int SQLITE_CREATE_TEMP_INDEX     = 3;    /* Index Name      Table Name      */
-        public const int SQLITE_CREATE_TEMP_TABLE     = 4;    /* Table Name      NULL            */
-        public const int SQLITE_CREATE_TEMP_TRIGGER   = 5;    /* Trigger Name    Table Name      */
-        public const int SQLITE_CREATE_TEMP_VIEW      = 6;    /* View Name       NULL            */
-        public const int SQLITE_CREATE_TRIGGER        = 7;    /* Trigger Name    Table Name      */
-        public const int SQLITE_CREATE_VIEW           = 8;    /* View Name       NULL            */
-        public const int SQLITE_DELETE                = 9;    /* Table Name      NULL            */
-        public const int SQLITE_DROP_INDEX            = 10;   /* Index Name      Table Name      */
-        public const int SQLITE_DROP_TABLE            = 11;   /* Table Name      NULL            */
-        public const int SQLITE_DROP_TEMP_INDEX       = 12;   /* Index Name      Table Name      */
-        public const int SQLITE_DROP_TEMP_TABLE       = 13;   /* Table Name      NULL            */
-        public const int SQLITE_DROP_TEMP_TRIGGER     = 14;   /* Trigger Name    Table Name      */
-        public const int SQLITE_DROP_TEMP_VIEW        = 15;   /* View Name       NULL            */
-        public const int SQLITE_DROP_TRIGGER          = 16;   /* Trigger Name    Table Name      */
-        public const int SQLITE_DROP_VIEW             = 17;   /* View Name       NULL            */
-        public const int SQLITE_INSERT                = 18;   /* Table Name      NULL            */
-        public const int SQLITE_PRAGMA                = 19;   /* Pragma Name     1st arg or NULL */
-        public const int SQLITE_READ                  = 20;   /* Table Name      Column Name     */
-        public const int SQLITE_SELECT                = 21;   /* NULL            NULL            */
-        public const int SQLITE_TRANSACTION           = 22;   /* Operation       NULL            */
-        public const int SQLITE_UPDATE                = 23;   /* Table Name      Column Name     */
-        public const int SQLITE_ATTACH                = 24;   /* Filename        NULL            */
-        public const int SQLITE_DETACH                = 25;   /* Database Name   NULL            */
-        public const int SQLITE_ALTER_TABLE           = 26;   /* Database Name   Table Name      */
-        public const int SQLITE_REINDEX               = 27;   /* Index Name      NULL            */
-        public const int SQLITE_ANALYZE               = 28;   /* Table Name      NULL            */
-        public const int SQLITE_CREATE_VTABLE         = 29;   /* Table Name      Module Name     */
-        public const int SQLITE_DROP_VTABLE           = 30;   /* Table Name      Module Name     */
-        public const int SQLITE_FUNCTION              = 31;   /* NULL            Function Name   */
-        public const int SQLITE_SAVEPOINT             = 32;   /* Operation       Savepoint Name  */
-        public const int SQLITE_COPY                  = 0;    /* No longer used */
-        public const int SQLITE_RECURSIVE             = 33;   /* NULL            NULL            */
+        public const int SQLITE_CREATE_INDEX = 1;    /* Index Name      Table Name      */
+        public const int SQLITE_CREATE_TABLE = 2;    /* Table Name      NULL            */
+        public const int SQLITE_CREATE_TEMP_INDEX = 3;    /* Index Name      Table Name      */
+        public const int SQLITE_CREATE_TEMP_TABLE = 4;    /* Table Name      NULL            */
+        public const int SQLITE_CREATE_TEMP_TRIGGER = 5;    /* Trigger Name    Table Name      */
+        public const int SQLITE_CREATE_TEMP_VIEW = 6;    /* View Name       NULL            */
+        public const int SQLITE_CREATE_TRIGGER = 7;    /* Trigger Name    Table Name      */
+        public const int SQLITE_CREATE_VIEW = 8;    /* View Name       NULL            */
+        public const int SQLITE_DELETE = 9;    /* Table Name      NULL            */
+        public const int SQLITE_DROP_INDEX = 10;   /* Index Name      Table Name      */
+        public const int SQLITE_DROP_TABLE = 11;   /* Table Name      NULL            */
+        public const int SQLITE_DROP_TEMP_INDEX = 12;   /* Index Name      Table Name      */
+        public const int SQLITE_DROP_TEMP_TABLE = 13;   /* Table Name      NULL            */
+        public const int SQLITE_DROP_TEMP_TRIGGER = 14;   /* Trigger Name    Table Name      */
+        public const int SQLITE_DROP_TEMP_VIEW = 15;   /* View Name       NULL            */
+        public const int SQLITE_DROP_TRIGGER = 16;   /* Trigger Name    Table Name      */
+        public const int SQLITE_DROP_VIEW = 17;   /* View Name       NULL            */
+        public const int SQLITE_INSERT = 18;   /* Table Name      NULL            */
+        public const int SQLITE_PRAGMA = 19;   /* Pragma Name     1st arg or NULL */
+        public const int SQLITE_READ = 20;   /* Table Name      Column Name     */
+        public const int SQLITE_SELECT = 21;   /* NULL            NULL            */
+        public const int SQLITE_TRANSACTION = 22;   /* Operation       NULL            */
+        public const int SQLITE_UPDATE = 23;   /* Table Name      Column Name     */
+        public const int SQLITE_ATTACH = 24;   /* Filename        NULL            */
+        public const int SQLITE_DETACH = 25;   /* Database Name   NULL            */
+        public const int SQLITE_ALTER_TABLE = 26;   /* Database Name   Table Name      */
+        public const int SQLITE_REINDEX = 27;   /* Index Name      NULL            */
+        public const int SQLITE_ANALYZE = 28;   /* Table Name      NULL            */
+        public const int SQLITE_CREATE_VTABLE = 29;   /* Table Name      Module Name     */
+        public const int SQLITE_DROP_VTABLE = 30;   /* Table Name      Module Name     */
+        public const int SQLITE_FUNCTION = 31;   /* NULL            Function Name   */
+        public const int SQLITE_SAVEPOINT = 32;   /* Operation       Savepoint Name  */
+        public const int SQLITE_COPY = 0;    /* No longer used */
+        public const int SQLITE_RECURSIVE = 33;   /* NULL            NULL            */
 
-        public const int SQLITE_CHECKPOINT_PASSIVE    = 0;
-        public const int SQLITE_CHECKPOINT_FULL       = 1;
-        public const int SQLITE_CHECKPOINT_RESTART    = 2;
-        
-        public const int SQLITE_DBSTATUS_LOOKASIDE_USED      = 0;
-        public const int SQLITE_DBSTATUS_CACHE_USED          = 1;
-        public const int SQLITE_DBSTATUS_SCHEMA_USED         = 2;
-        public const int SQLITE_DBSTATUS_STMT_USED           = 3;
-        public const int SQLITE_DBSTATUS_LOOKASIDE_HIT       = 4;
+        public const int SQLITE_CHECKPOINT_PASSIVE = 0;
+        public const int SQLITE_CHECKPOINT_FULL = 1;
+        public const int SQLITE_CHECKPOINT_RESTART = 2;
+        public const int SQLITE_CHECKPOINT_TRUNCATE = 3;
+
+        public const int SQLITE_DBSTATUS_LOOKASIDE_USED = 0;
+        public const int SQLITE_DBSTATUS_CACHE_USED = 1;
+        public const int SQLITE_DBSTATUS_SCHEMA_USED = 2;
+        public const int SQLITE_DBSTATUS_STMT_USED = 3;
+        public const int SQLITE_DBSTATUS_LOOKASIDE_HIT = 4;
         public const int SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE = 5;
         public const int SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL = 6;
-        public const int SQLITE_DBSTATUS_CACHE_HIT           = 7;
-        public const int SQLITE_DBSTATUS_CACHE_MISS          = 8;
-        public const int SQLITE_DBSTATUS_CACHE_WRITE         = 9;
-        public const int SQLITE_DBSTATUS_DEFERRED_FKS        = 10;
+        public const int SQLITE_DBSTATUS_CACHE_HIT = 7;
+        public const int SQLITE_DBSTATUS_CACHE_MISS = 8;
+        public const int SQLITE_DBSTATUS_CACHE_WRITE = 9;
+        public const int SQLITE_DBSTATUS_DEFERRED_FKS = 10;
 
-        public const int SQLITE_STATUS_MEMORY_USED        = 0;
-        public const int SQLITE_STATUS_PAGECACHE_USED     = 1;
+        public const int SQLITE_STATUS_MEMORY_USED = 0;
+        public const int SQLITE_STATUS_PAGECACHE_USED = 1;
         public const int SQLITE_STATUS_PAGECACHE_OVERFLOW = 2;
-        public const int SQLITE_STATUS_SCRATCH_USED       = 3;
-        public const int SQLITE_STATUS_SCRATCH_OVERFLOW   = 4;
-        public const int SQLITE_STATUS_MALLOC_SIZE        = 5;
-        public const int SQLITE_STATUS_PARSER_STACK       = 6;
-        public const int SQLITE_STATUS_PAGECACHE_SIZE     = 7;
-        public const int SQLITE_STATUS_SCRATCH_SIZE       = 8;
-        public const int SQLITE_STATUS_MALLOC_COUNT       = 9;
-        
+        public const int SQLITE_STATUS_SCRATCH_USED = 3;
+        public const int SQLITE_STATUS_SCRATCH_OVERFLOW = 4;
+        public const int SQLITE_STATUS_MALLOC_SIZE = 5;
+        public const int SQLITE_STATUS_PARSER_STACK = 6;
+        public const int SQLITE_STATUS_PAGECACHE_SIZE = 7;
+        public const int SQLITE_STATUS_SCRATCH_SIZE = 8;
+        public const int SQLITE_STATUS_MALLOC_COUNT = 9;
+
         public const int SQLITE_STMTSTATUS_FULLSCAN_STEP = 1;
-        public const int SQLITE_STMTSTATUS_SORT          = 2;
-        public const int SQLITE_STMTSTATUS_AUTOINDEX     = 3;
-        public const int SQLITE_STMTSTATUS_VM_STEP       = 4;
+        public const int SQLITE_STMTSTATUS_SORT = 2;
+        public const int SQLITE_STMTSTATUS_AUTOINDEX = 3;
+        public const int SQLITE_STMTSTATUS_VM_STEP = 4;
+
+        // Authorizer Return Codes
+        public const int SQLITE_DENY = 1;   /* Abort the SQL statement with an error */
+        public const int SQLITE_IGNORE = 2;   /* Don't allow access, but don't generate an error */
 
         static public int sqlite3_open(string filename, out sqlite3 db)
         {
@@ -255,12 +290,13 @@ namespace SQLitePCL
             return rc;
         }
         static public int sqlite3__vfs__delete(string vfs, string pathname, int syncdir)
-	{
-		return _imp.sqlite3__vfs__delete(vfs, pathname, syncdir);
-	}
+        {
+            return _imp.sqlite3__vfs__delete(vfs, pathname, syncdir);
+        }
 
         static public int sqlite3_close_v2(sqlite3 db)
         {
+			if (db.already_disposed) return 0;
             int rc = _imp.sqlite3_close_v2(db.ptr);
             db.set_already_disposed();
             return rc;
@@ -268,6 +304,7 @@ namespace SQLitePCL
 
         static public int sqlite3_close(sqlite3 db)
         {
+			if (db.already_disposed) return 0;
             int rc = _imp.sqlite3_close(db.ptr);
             db.set_already_disposed();
             return rc;
@@ -281,6 +318,11 @@ namespace SQLitePCL
         static public void sqlite3_interrupt(sqlite3 db)
         {
             _imp.sqlite3_interrupt(db.ptr);
+        }
+
+        static public void sqlite3_config_log(delegate_log f, object v)
+        {
+            _imp.sqlite3_config_log(f, v);
         }
 
         static public void sqlite3_commit_hook(sqlite3 db, delegate_commit f, object v)
@@ -328,6 +370,16 @@ namespace SQLitePCL
             return _imp.sqlite3_create_function(db.ptr, name, nArg, v, func_step, func_final);
         }
 
+        static public int sqlite3_create_function(sqlite3 db, string name, int nArg, int flags, object v, delegate_function_scalar func)
+        {
+            return _imp.sqlite3_create_function(db.ptr, name, nArg, flags, v, func);
+        }
+
+        static public int sqlite3_create_function(sqlite3 db, string name, int nArg, int flags, object v, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)
+        {
+            return _imp.sqlite3_create_function(db.ptr, name, nArg, flags, v, func_step, func_final);
+        }
+
         static public int sqlite3_db_status(sqlite3 db, int op, out int current, out int highest, int resetFlg)
         {
             return _imp.sqlite3_db_status(db.ptr, op, out current, out highest, resetFlg);
@@ -341,6 +393,36 @@ namespace SQLitePCL
         static public int sqlite3_libversion_number()
         {
             return _imp.sqlite3_libversion_number();
+        }
+
+        static public int sqlite3_threadsafe()
+        {
+            return _imp.sqlite3_threadsafe();
+        }
+
+        static public int sqlite3_initialize()
+        {
+            return _imp.sqlite3_initialize();
+        }
+
+        static public int sqlite3_shutdown()
+        {
+            return _imp.sqlite3_shutdown();
+        }
+
+        static public int sqlite3_config(int op)
+        {
+            return _imp.sqlite3_config(op);
+        }
+
+        static public int sqlite3_config(int op, int val)
+        {
+            return _imp.sqlite3_config(op, val);
+        }
+
+        static public int sqlite3_enable_load_extension(sqlite3 db, int onoff)
+        {
+            return _imp.sqlite3_enable_load_extension(db.ptr, onoff);
         }
 
         static public string sqlite3_sourceid()
@@ -460,6 +542,7 @@ namespace SQLitePCL
 
         static public int sqlite3_finalize(sqlite3_stmt stmt)
         {
+			if (stmt.already_disposed) return 0;
             int rc = _imp.sqlite3_finalize(stmt.ptr);
             stmt.set_already_disposed();
             return rc;
@@ -497,10 +580,9 @@ namespace SQLitePCL
 
         static public int sqlite3_table_column_metadata(sqlite3 db, string dbName, string tblName, string colName, out string dataType, out string collSeq, out int notNull, out int primaryKey, out int autoInc)
         {
-
             return _imp.sqlite3_table_column_metadata(db.ptr, dbName, tblName, colName, out dataType, out collSeq, out notNull, out primaryKey, out autoInc);
         }
-        
+
         static public string sqlite3_sql(sqlite3_stmt stmt)
         {
             return _imp.sqlite3_sql(stmt.ptr);
@@ -646,7 +728,12 @@ namespace SQLitePCL
 
         static public int sqlite3_bind_blob(sqlite3_stmt stmt, int index, byte[] blob)
         {
-            return _imp.sqlite3_bind_blob(stmt.ptr, index, blob);
+            return sqlite3_bind_blob(stmt, index, blob, blob.Length);
+        }
+
+        static public int sqlite3_bind_blob(sqlite3_stmt stmt, int index, byte[] blob, int nSize)
+        {
+            return _imp.sqlite3_bind_blob(stmt.ptr, index, blob, nSize);
         }
 
         static public int sqlite3_bind_double(sqlite3_stmt stmt, int index, double val)
@@ -749,6 +836,11 @@ namespace SQLitePCL
             return _imp.sqlite3_column_blob(stmt.ptr, index);
         }
 
+        static public int sqlite3_column_blob(sqlite3_stmt stmt, int index, byte[] result, int offset)
+        {
+            return _imp.sqlite3_column_blob(stmt.ptr, index, result, offset);
+        }
+
         static public int sqlite3_column_bytes(sqlite3_stmt stmt, int index)
         {
             return _imp.sqlite3_column_bytes(stmt.ptr, index);
@@ -777,6 +869,7 @@ namespace SQLitePCL
 
         static public int sqlite3_backup_finish(sqlite3_backup backup)
         {
+			if (backup.already_disposed) return 0;
             int rc = _imp.sqlite3_backup_finish(backup.ptr);
             backup.set_already_disposed();
             return rc;
@@ -790,6 +883,14 @@ namespace SQLitePCL
         static public int sqlite3_backup_pagecount(sqlite3_backup backup)
         {
             return _imp.sqlite3_backup_pagecount(backup.ptr);
+        }
+
+        static public int sqlite3_blob_open(sqlite3 db, byte[] db_utf8, byte[] table_utf8, byte[] col_utf8, long rowid, int flags, out sqlite3_blob blob)
+        {
+            IntPtr p;
+            int rc = _imp.sqlite3_blob_open(db.ptr, db_utf8, table_utf8, col_utf8, rowid, flags, out p);
+            blob = new sqlite3_blob(p);
+            return rc;
         }
 
         static public int sqlite3_blob_open(sqlite3 db, string sdb, string table, string col, long rowid, int flags, out sqlite3_blob blob)
@@ -807,6 +908,7 @@ namespace SQLitePCL
 
         static public int sqlite3_blob_close(sqlite3_blob blob)
         {
+			if (blob.already_disposed) return 0;
             int rc = _imp.sqlite3_blob_close(blob.ptr);
             blob.set_already_disposed();
             return rc;
@@ -847,6 +949,16 @@ namespace SQLitePCL
         static public int sqlite3_wal_checkpoint_v2(sqlite3 db, string dbName, int eMode, out int logSize, out int framesCheckPointed)
         {
             return _imp.sqlite3_wal_checkpoint_v2(db.ptr, dbName, eMode, out logSize, out framesCheckPointed);
+        }
+
+        static public int sqlite3_set_authorizer(sqlite3 db, delegate_authorizer authorizer, object user_data)
+        {
+            return _imp.sqlite3_set_authorizer(db.ptr, authorizer, user_data);
+        }
+
+        static public int sqlite3_win32_set_directory(int typ, string path)
+        {
+            return _imp.sqlite3_win32_set_directory(typ, path);
         }
     }
 }

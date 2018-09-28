@@ -1,5 +1,5 @@
 ﻿/*
-   Copyright 2014-2015 Zumero, LLC
+   Copyright 2014-2016 Zumero, LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -86,13 +86,13 @@ namespace SQLitePCL.Ugly
             int _errcode;
             string _errmsg;
 
-            public sqlite3_exception(int rc)
+            public sqlite3_exception(int rc) : base(string.Format("rc={0}", rc))
             {
                 _errcode = rc;
                 _errmsg = null;
             }
 
-            public sqlite3_exception(int rc, string msg)
+            public sqlite3_exception(int rc, string msg) : base(string.Format("rc={0}: {1}", rc, msg))
             {
                 _errcode = rc;
                 _errmsg = msg;
@@ -129,6 +129,30 @@ namespace SQLitePCL.Ugly
         private static void check_ok(sqlite3 db, int rc)
         {
             if (raw.SQLITE_OK != rc) throw new sqlite3_exception(rc, db.errmsg());
+        }
+
+        public static void initialize()
+        {
+            int rc = raw.sqlite3_initialize();
+            check_ok(rc);
+        }
+
+        public static void shutdown()
+        {
+            int rc = raw.sqlite3_shutdown();
+            check_ok(rc);
+        }
+
+        public static void config(int op)
+        {
+            int rc = raw.sqlite3_config(op);
+            check_ok(rc);
+        }
+
+        public static void config(int op, int val)
+        {
+            int rc = raw.sqlite3_config(op, val);
+            check_ok(rc);
         }
 
         public static sqlite3 open(string filename)
@@ -224,6 +248,18 @@ namespace SQLitePCL.Ugly
             check_ok(rc);
         }
 
+        public static void create_function(this sqlite3 db, string name, int nargs, int flags, object v, delegate_function_scalar f)
+        {
+            int rc = raw.sqlite3_create_function(db, name, nargs, flags, v, f);
+            check_ok(rc);
+        }
+
+        public static void create_function(this sqlite3 db, string name, int nargs, int flags, object v, delegate_function_aggregate_step f_step, delegate_function_aggregate_final f_final)
+        {
+            int rc = raw.sqlite3_create_function(db, name, nargs, flags, v, f_step, f_final);
+            check_ok(rc);
+        }
+
         public static sqlite3_stmt prepare(this sqlite3 db, string sql)
         {
             sqlite3_stmt stmt;
@@ -268,6 +304,11 @@ namespace SQLitePCL.Ugly
             return raw.sqlite3_extended_result_codes(db, onoff);
         }
 
+        public static int enable_load_extension(this sqlite3 db, int onoff)
+        {
+            return raw.sqlite3_enable_load_extension(db, onoff);
+        }
+
         public static int get_autocommit(this sqlite3 db)
         {
             return raw.sqlite3_get_autocommit(db);
@@ -281,6 +322,14 @@ namespace SQLitePCL.Ugly
         public static sqlite3_stmt next_stmt(this sqlite3 db, sqlite3_stmt s)
         {
             return raw.sqlite3_next_stmt(db, s);
+        }
+
+        public static sqlite3_blob blob_open(this sqlite3 db, byte[] db_utf8, byte[] table_utf8, byte[] column_utf8, long rowid, int flags)
+        {
+            sqlite3_blob blob;
+            int rc = raw.sqlite3_blob_open(db, db_utf8, table_utf8, column_utf8, rowid, flags, out blob);
+            check_ok(rc);
+            return blob;
         }
 
         public static sqlite3_blob blob_open(this sqlite3 db, string sdb, string table, string column, long rowid, int flags)
@@ -388,7 +437,7 @@ namespace SQLitePCL.Ugly
                 && (rc != raw.SQLITE_DONE)
                 )
             {
-                throw new sqlite3_exception(rc);
+                throw new sqlite3_exception(rc, stmt.db_handle().errmsg());
             }
 
             return rc;
@@ -492,6 +541,11 @@ namespace SQLitePCL.Ugly
             return raw.sqlite3_column_blob(stmt, index);
         }
 
+        public static int column_blob(this sqlite3_stmt stmt, int index, byte[] ba, int offset)
+        {
+            return raw.sqlite3_column_blob(stmt, index, ba, offset);
+        }
+
         // TODO maybe this doesn't need to be here.  since it cannot be
         // named finalize(), and since sqlite3_stmt implements IDisposable,
         // I'm not sure this extension method adds much value.
@@ -510,7 +564,12 @@ namespace SQLitePCL.Ugly
 
         public static void bind_blob(this sqlite3_stmt stmt, int index, byte[] b)
         {
-            int rc = raw.sqlite3_bind_blob(stmt, index, b);
+            bind_blob(stmt, index, b, b.Length);
+        }
+
+        public static void bind_blob(this sqlite3_stmt stmt, int index, byte[] b, int nSize)
+        {
+            int rc = raw.sqlite3_bind_blob(stmt, index, b, nSize);
             check_ok(rc);
         }
 
@@ -601,14 +660,14 @@ namespace SQLitePCL.Ugly
                     || (typeof(sbyte) == t) 
                     )
             {
-                return Convert.ChangeType(stmt.column_int(index), t);
+                return Convert.ChangeType(stmt.column_int(index), t, null);
             }
             else if (
                        (typeof(double) == t) 
                     || (typeof(float) == t) 
                     )
             {
-                return Convert.ChangeType(stmt.column_double(index), t);
+                return Convert.ChangeType(stmt.column_double(index), t, null);
             }
             else if (typeof(DateTime) == t) 
             {
@@ -620,11 +679,47 @@ namespace SQLitePCL.Ugly
                     || (typeof(UInt32) == t) 
                     )
             {
-                return Convert.ChangeType(stmt.column_int64(index), t);
+                return Convert.ChangeType(stmt.column_int64(index), t, null);
+            }
+            else if (typeof(System.Nullable<long>) == t) 
+            {
+                if (stmt.column_type(index) == raw.SQLITE_NULL)
+                {
+                    return null;
+                }
+		else
+		{
+		    long? x = stmt.column_int64(index);
+		    return x;
+		}
+            }
+            else if (typeof(System.Nullable<double>) == t) 
+            {
+                if (stmt.column_type(index) == raw.SQLITE_NULL)
+                {
+                    return null;
+                }
+		else
+		{
+		    double? x = stmt.column_double(index);
+		    return x;
+		}
+            }
+            else if (typeof(System.Nullable<int>) == t) 
+            {
+                if (stmt.column_type(index) == raw.SQLITE_NULL)
+                {
+                    return null;
+                }
+		else
+		{
+		    int? x = stmt.column_int(index);
+		    return x;
+		}
             }
             else if (typeof(decimal) == t) 
             {
-                return (decimal)Convert.ChangeType(stmt.column_double(index), t);
+                return (decimal)Convert.ChangeType(stmt.column_double(index), t, null);
             }
             else if (typeof(byte[]) == t) 
             {
@@ -644,7 +739,11 @@ namespace SQLitePCL.Ugly
             {
                 string colname = stmt.column_name(i);
 
+#if OLD_REFLECTION
+                var prop = typ.GetProperty(colname);
+#else
                 var prop = typ.GetTypeInfo().GetDeclaredProperty(colname);
+#endif
                 if (
                         (null != prop)
                         && prop.CanWrite
@@ -699,7 +798,7 @@ namespace SQLitePCL.Ugly
                             || (typeof(UInt32) == t) 
                             )
                     {
-                        stmt.bind_int64(ndx, (long) (Convert.ChangeType(a[i], typeof(long))));
+                        stmt.bind_int64(ndx, (long) (Convert.ChangeType(a[i], typeof(long), null)));
                     }
                     else if (
                                (typeof(double) == t) 
@@ -707,7 +806,7 @@ namespace SQLitePCL.Ugly
                             || (typeof(decimal) == t) 
                             )
                     {
-                        stmt.bind_double(ndx, (double) (Convert.ChangeType(a[i], typeof(double))));
+                        stmt.bind_double(ndx, (double) (Convert.ChangeType(a[i], typeof(double), null)));
                     }
                     else if (typeof(DateTime) == t) 
                     {

@@ -1,5 +1,5 @@
 /*
-   Copyright 2014-2015 Zumero, LLC
+   Copyright 2014-2016 Zumero, LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ namespace SQLitePCL
     /// <summary>
     /// Implements the <see cref="ISQLite3Provider"/> interface
     /// </summary>
-    internal sealed class SQLite3Provider : ISQLite3Provider
+    public sealed class SQLite3Provider_e_sqlite3 : ISQLite3Provider
     {
-        public SQLite3Provider()
+        public SQLite3Provider_e_sqlite3()
         {
 #if WINDOWS_PHONE
             IntPtr db;
@@ -149,8 +149,6 @@ namespace SQLitePCL
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
 
-        private commit_hook_info _commit_hook;
-
         static private int commit_hook_bridge_impl(IntPtr p)
         {
             commit_hook_info hi = commit_hook_info.from_ptr(p);
@@ -163,17 +161,18 @@ namespace SQLitePCL
         callback_commit commit_hook_bridge = new callback_commit(commit_hook_bridge_impl);
         void ISQLite3Provider.sqlite3_commit_hook(IntPtr db, delegate_commit func, object v)
         {
-            if (_commit_hook != null)
+		var info = hooks.getOrCreateFor(db);
+            if (info.commit != null)
             {
                 // TODO maybe turn off the hook here, for now
-                _commit_hook.free();
-                _commit_hook = null;
+                info.commit.free();
+                info.commit = null;
             }
 
             if (func != null)
             {
-                _commit_hook = new commit_hook_info(func, v);
-                SQLite3RuntimeProvider.sqlite3_commit_hook(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(commit_hook_bridge).ToInt64(), _commit_hook.ptr.ToInt64());
+                info.commit = new commit_hook_info(func, v);
+                SQLite3RuntimeProvider.sqlite3_commit_hook(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(commit_hook_bridge).ToInt64(), info.commit.ptr.ToInt64());
             }
             else
             {
@@ -185,8 +184,6 @@ namespace SQLitePCL
 
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
-
-        private Dictionary<string, collation_hook_info> _collation_hooks = new Dictionary<string, collation_hook_info>();
 
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         private delegate int callback_collation(IntPtr puser, int len1, IntPtr pv1, int len2, IntPtr pv2);
@@ -201,14 +198,15 @@ namespace SQLitePCL
 
         int ISQLite3Provider.sqlite3_create_collation(IntPtr db, string name, object v, delegate_collation func)
         {
-            if (_collation_hooks.ContainsKey(name))
+		var info = hooks.getOrCreateFor(db);
+            if (info.collation.ContainsKey(name))
             {
-                collation_hook_info hi = _collation_hooks[name];
+                collation_hook_info hi = info.collation[name];
 
                 // TODO maybe turn off the hook here, for now
                 hi.free();
 
-                _collation_hooks.Remove(name);
+                info.collation.Remove(name);
             }
 
             GCHandle pinned = GCHandle.Alloc(util.to_utf8(name), GCHandleType.Pinned);
@@ -223,7 +221,7 @@ namespace SQLitePCL
                 rc = SQLite3RuntimeProvider.sqlite3_create_collation(db.ToInt64(), ptr.ToInt64(), 1, hi.ptr.ToInt64(), Marshal.GetFunctionPointerForDelegate(collation_hook_bridge).ToInt64());
                 if (rc == 0)
                 {
-                    _collation_hooks[name] = hi;
+                    info.collation[name] = hi;
                 }
             }
             else
@@ -241,9 +239,6 @@ namespace SQLitePCL
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
 
-        // the keys for this dictionary are nargs.name, not just the name
-        private Dictionary<string, scalar_function_hook_info> _scalar_functions = new Dictionary<string, scalar_function_hook_info>();
-
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         private delegate void callback_scalar_function(IntPtr context, int nArgs, IntPtr argsptr);
 
@@ -256,17 +251,19 @@ namespace SQLitePCL
 
         callback_scalar_function scalar_function_hook_bridge = new callback_scalar_function(scalar_function_hook_bridge_impl);
 
-        int ISQLite3Provider.sqlite3_create_function(IntPtr db, string name, int nargs, object v, delegate_function_scalar func)
+        int my_sqlite3_create_function(IntPtr db, string name, int nargs, int flags, object v, delegate_function_scalar func)
         {
+        // the keys for this dictionary are nargs.name, not just the name
             string key = string.Format("{0}.{1}", nargs, name);
-            if (_scalar_functions.ContainsKey(key))
+		var info = hooks.getOrCreateFor(db);
+            if (info.scalar.ContainsKey(key))
             {
-                scalar_function_hook_info hi = _scalar_functions[key];
+                scalar_function_hook_info hi = info.scalar[key];
 
                 // TODO maybe turn off the hook here, for now
                 hi.free();
 
-                _scalar_functions.Remove(key);
+                info.scalar.Remove(key);
             }
 
             GCHandle pinned = GCHandle.Alloc(util.to_utf8(name), GCHandleType.Pinned);
@@ -275,18 +272,19 @@ namespace SQLitePCL
             int rc;
 
             // 1 is SQLITE_UTF8
+			int arg4 = 1 | flags;
             if (func != null)
             {
                 scalar_function_hook_info hi = new scalar_function_hook_info(func, v);
-                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, 1, hi.ptr.ToInt64(), Marshal.GetFunctionPointerForDelegate(scalar_function_hook_bridge).ToInt64(), 0, 0, 0);
+                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, arg4, hi.ptr.ToInt64(), Marshal.GetFunctionPointerForDelegate(scalar_function_hook_bridge).ToInt64(), 0, 0, 0);
                 if (rc == 0)
                 {
-                    _scalar_functions[key] = hi;
+                    info.scalar[key] = hi;
                 }
             }
             else
             {
-                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, 1, 0, 0, 0, 0, 0);
+                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, arg4, 0, 0, 0, 0, 0);
             }
 
             pinned.Free();
@@ -294,13 +292,21 @@ namespace SQLitePCL
             return rc;
         }
 
+        int ISQLite3Provider.sqlite3_create_function(IntPtr db, string name, int nargs, object v, delegate_function_scalar func)
+		{
+			return my_sqlite3_create_function(db, name, nargs, 0, v, func);
+		}
+
+        int ISQLite3Provider.sqlite3_create_function(IntPtr db, string name, int nargs, int flags, object v, delegate_function_scalar func)
+		{
+			return my_sqlite3_create_function(db, name, nargs, flags, v, func);
+		}
+
         // ----------------------------------------------------------------
 
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
 
-        // the keys for this dictionary are nargs.name, not just the name
-        private Dictionary<string, agg_function_hook_info> _agg_functions = new Dictionary<string, agg_function_hook_info>();
 
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         private delegate void callback_agg_function_step(IntPtr context, int nArgs, IntPtr argsptr);
@@ -331,17 +337,20 @@ namespace SQLitePCL
         callback_agg_function_step agg_function_hook_bridge_step = new callback_agg_function_step(agg_function_hook_bridge_step_impl);
         callback_agg_function_final agg_function_hook_bridge_final = new callback_agg_function_final(agg_function_hook_bridge_final_impl);
 
-        int ISQLite3Provider.sqlite3_create_function(IntPtr db, string name, int nargs, object v, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)
+        int my_sqlite3_create_function(IntPtr db, string name, int nargs, int flags, object v, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)
         {
+        // the keys for this dictionary are nargs.name, not just the name
+
             string key = string.Format("{0}.{1}", nargs, name);
-            if (_agg_functions.ContainsKey(key))
+		var info = hooks.getOrCreateFor(db);
+            if (info.agg.ContainsKey(key))
             {
-                agg_function_hook_info hi = _agg_functions[key];
+                agg_function_hook_info hi = info.agg[key];
 
                 // TODO maybe turn off the hook here, for now
                 hi.free();
 
-                _agg_functions.Remove(key);
+                info.agg.Remove(key);
             }
 
             GCHandle pinned = GCHandle.Alloc(util.to_utf8(name), GCHandleType.Pinned);
@@ -350,19 +359,20 @@ namespace SQLitePCL
             int rc;
 
             // 1 is SQLITE_UTF8
+			int arg4 = 1 | flags;
             if (func_step != null)
             {
                 // TODO both func_step and func_final must be non-null
                 agg_function_hook_info hi = new agg_function_hook_info(func_step, func_final, v);
-                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, 1, hi.ptr.ToInt64(), 0, Marshal.GetFunctionPointerForDelegate(agg_function_hook_bridge_step).ToInt64(), Marshal.GetFunctionPointerForDelegate(agg_function_hook_bridge_final).ToInt64(), 0);
+                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, arg4, hi.ptr.ToInt64(), 0, Marshal.GetFunctionPointerForDelegate(agg_function_hook_bridge_step).ToInt64(), Marshal.GetFunctionPointerForDelegate(agg_function_hook_bridge_final).ToInt64(), 0);
                 if (rc == 0)
                 {
-                    _agg_functions[key] = hi;
+                    info.agg[key] = hi;
                 }
             }
             else
             {
-                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, 1, 0, 0, 0, 0, 0);
+                rc = SQLite3RuntimeProvider.sqlite3_create_function_v2(db.ToInt64(), ptr.ToInt64(), nargs, arg4, 0, 0, 0, 0, 0);
             }
 
             pinned.Free();
@@ -370,12 +380,20 @@ namespace SQLitePCL
             return rc;
         }
 
+        int ISQLite3Provider.sqlite3_create_function(IntPtr db, string name, int nargs, object v, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)
+		{
+			return my_sqlite3_create_function(db, name, nargs, 0, v, func_step, func_final);
+		}
+
+        int ISQLite3Provider.sqlite3_create_function(IntPtr db, string name, int nargs, int flags, object v, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)
+		{
+			return my_sqlite3_create_function(db, name, nargs, flags, v, func_step, func_final);
+		}
+
         // ----------------------------------------------------------------
 
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
-
-        private rollback_hook_info _rollback_hook;
 
         static private void rollback_hook_bridge_impl(IntPtr p)
         {
@@ -390,17 +408,18 @@ namespace SQLitePCL
 
         void ISQLite3Provider.sqlite3_rollback_hook(IntPtr db, delegate_rollback func, object v)
         {
-            if (_rollback_hook != null)
+		var info = hooks.getOrCreateFor(db);
+            if (info.rollback != null)
             {
                 // TODO maybe turn off the hook here, for now
-                _rollback_hook.free();
-                _rollback_hook = null;
+                info.rollback.free();
+                info.rollback = null;
             }
 
             if (func != null)
             {
-                _rollback_hook = new rollback_hook_info(func, v);
-                SQLite3RuntimeProvider.sqlite3_rollback_hook(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(rollback_hook_bridge).ToInt64(), _rollback_hook.ptr.ToInt64());
+                info.rollback = new rollback_hook_info(func, v);
+                SQLite3RuntimeProvider.sqlite3_rollback_hook(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(rollback_hook_bridge).ToInt64(), info.rollback.ptr.ToInt64());
             }
             else
             {
@@ -412,8 +431,6 @@ namespace SQLitePCL
 
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
-
-        private update_hook_info _update_hook;
 
         static private void update_hook_bridge_impl(IntPtr p, int typ, IntPtr db, IntPtr tbl, long rowid)
         {
@@ -428,17 +445,18 @@ namespace SQLitePCL
 
         void ISQLite3Provider.sqlite3_update_hook(IntPtr db, delegate_update func, object v)
         {
-            if (_update_hook != null)
+		var info = hooks.getOrCreateFor(db);
+            if (info.update != null)
             {
                 // TODO maybe turn off the hook here, for now
-                _update_hook.free();
-                _update_hook = null;
+                info.update.free();
+                info.update = null;
             }
 
             if (func != null)
             {
-                _update_hook = new update_hook_info(func, v);
-                SQLite3RuntimeProvider.sqlite3_update_hook(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(update_hook_bridge).ToInt64(), _update_hook.ptr.ToInt64());
+                info.update = new update_hook_info(func, v);
+                SQLite3RuntimeProvider.sqlite3_update_hook(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(update_hook_bridge).ToInt64(), info.update.ptr.ToInt64());
             }
             else
             {
@@ -450,8 +468,6 @@ namespace SQLitePCL
 
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
-
-        private trace_hook_info _trace_hook;
 
         static private void trace_hook_bridge_impl(IntPtr p, IntPtr s)
         {
@@ -466,17 +482,18 @@ namespace SQLitePCL
 
         void ISQLite3Provider.sqlite3_trace(IntPtr db, delegate_trace func, object v)
         {
-            if (_trace_hook != null)
+		var info = hooks.getOrCreateFor(db);
+            if (info.trace != null)
             {
                 // TODO maybe turn off the hook here, for now
-                _trace_hook.free();
-                _trace_hook = null;
+                info.trace.free();
+                info.trace = null;
             }
 
             if (func != null)
             {
-                _trace_hook = new trace_hook_info(func, v);
-                SQLite3RuntimeProvider.sqlite3_trace(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(trace_hook_bridge).ToInt64(), _trace_hook.ptr.ToInt64());
+                info.trace = new trace_hook_info(func, v);
+                SQLite3RuntimeProvider.sqlite3_trace(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(trace_hook_bridge).ToInt64(), info.trace.ptr.ToInt64());
             }
             else
             {
@@ -488,8 +505,6 @@ namespace SQLitePCL
 
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
-
-        private profile_hook_info _profile_hook;
 
         static private void profile_hook_bridge_impl(IntPtr p, IntPtr s, long elapsed)
         {
@@ -504,17 +519,18 @@ namespace SQLitePCL
 
         void ISQLite3Provider.sqlite3_profile(IntPtr db, delegate_profile func, object v)
         {
-            if (_profile_hook != null)
+		var info = hooks.getOrCreateFor(db);
+            if (info.profile != null)
             {
                 // TODO maybe turn off the hook here, for now
-                _profile_hook.free();
-                _profile_hook = null;
+                info.profile.free();
+                info.profile = null;
             }
 
             if (func != null)
             {
-                _profile_hook = new profile_hook_info(func, v);
-                SQLite3RuntimeProvider.sqlite3_profile(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(profile_hook_bridge).ToInt64(), _profile_hook.ptr.ToInt64());
+                info.profile = new profile_hook_info(func, v);
+                SQLite3RuntimeProvider.sqlite3_profile(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(profile_hook_bridge).ToInt64(), info.profile.ptr.ToInt64());
             }
             else
             {
@@ -526,8 +542,6 @@ namespace SQLitePCL
 
         // Passing a callback into SQLite is tricky.  See comments near commit_hook
         // implementation in pinvoke/SQLite3Provider.cs
-
-        private progress_handler_hook_info _progress_handler_hook;
 
         static private int progress_handler_hook_bridge_impl(IntPtr p)
         {
@@ -542,17 +556,18 @@ namespace SQLitePCL
 
         void ISQLite3Provider.sqlite3_progress_handler(IntPtr db, int instructions, delegate_progress_handler func, object v)
         {
-            if (_progress_handler_hook != null)
+		var info = hooks.getOrCreateFor(db);
+            if (info.progress != null)
             {
                 // TODO maybe turn off the hook here, for now
-                _progress_handler_hook.free();
-                _progress_handler_hook = null;
+                info.progress.free();
+                info.progress = null;
             }
 
             if (func != null)
             {
-                _progress_handler_hook = new progress_handler_hook_info(func, v);
-                SQLite3RuntimeProvider.sqlite3_progress_handler(db.ToInt64(), instructions, Marshal.GetFunctionPointerForDelegate(progress_handler_hook_bridge).ToInt64(), _progress_handler_hook.ptr.ToInt64());
+                info.progress = new progress_handler_hook_info(func, v);
+                SQLite3RuntimeProvider.sqlite3_progress_handler(db.ToInt64(), instructions, Marshal.GetFunctionPointerForDelegate(progress_handler_hook_bridge).ToInt64(), info.progress.ptr.ToInt64());
             }
             else
             {
@@ -560,12 +575,50 @@ namespace SQLitePCL
             }
         }
 
+        // ----------------------------------------------------------------
+
+        // Passing a callback into SQLite is tricky.  See comments near commit_hook
+        // implementation in pinvoke/SQLite3Provider.cs
+
+        static private int authorizer_hook_bridge_impl(IntPtr p, int action_code, IntPtr param0, IntPtr param1, IntPtr dbName, IntPtr inner_most_trigger_or_view)
+        {
+            authorizer_hook_info hi = authorizer_hook_info.from_ptr(p);
+            return hi.call(action_code, util.from_utf8(param0), util.from_utf8(param1), util.from_utf8(dbName), util.from_utf8(inner_most_trigger_or_view));
+        }
+
+        [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
+        private delegate int callback_authorizer(IntPtr puser, int action_code, IntPtr param0, IntPtr param1, IntPtr dbName, IntPtr inner_most_trigger_or_view);
+
+        callback_authorizer authorizer_hook_bridge = new callback_authorizer(authorizer_hook_bridge_impl);
+
+        int ISQLite3Provider.sqlite3_set_authorizer(IntPtr db, delegate_authorizer func, object v)
+        {
+		var info = hooks.getOrCreateFor(db);
+            if (info.authorizer != null)
+            {
+                // TODO maybe turn off the hook here, for now
+                info.authorizer.free();
+                info.authorizer = null;
+            }
+
+            if (func != null)
+            {
+                info.authorizer = new authorizer_hook_info(func, v);
+                return SQLite3RuntimeProvider.sqlite3_set_authorizer(db.ToInt64(), Marshal.GetFunctionPointerForDelegate(authorizer_hook_bridge).ToInt64(), info.authorizer.ptr.ToInt64());
+            }
+            else
+            {
+                return SQLite3RuntimeProvider.sqlite3_set_authorizer(db.ToInt64(), IntPtr.Zero.ToInt64(), IntPtr.Zero.ToInt64());
+            }
+        }
 
         // ----------------------------------------------------------------
 
         int ISQLite3Provider.sqlite3_close(IntPtr db)
         {
-            return SQLite3RuntimeProvider.sqlite3_close(db.ToInt64());
+            var rc = SQLite3RuntimeProvider.sqlite3_close(db.ToInt64());
+		hooks.removeFor(db);
+		return rc;
         }
 
         void ISQLite3Provider.sqlite3_interrupt(IntPtr db)
@@ -826,6 +879,41 @@ namespace SQLitePCL
             return SQLite3RuntimeProvider.sqlite3_libversion_number();
         }
 
+        int ISQLite3Provider.sqlite3_threadsafe()
+        {
+            return SQLite3RuntimeProvider.sqlite3_threadsafe();
+        }
+
+        int ISQLite3Provider.sqlite3_initialize()
+        {
+            return SQLite3RuntimeProvider.sqlite3_initialize();
+        }
+
+        int ISQLite3Provider.sqlite3_shutdown()
+        {
+            return SQLite3RuntimeProvider.sqlite3_shutdown();
+        }
+
+        int ISQLite3Provider.sqlite3_config_log(delegate_log func, object v)
+        {
+            throw new NotImplementedException();
+        }
+
+        int ISQLite3Provider.sqlite3_config(int op)
+        {
+            return SQLite3RuntimeProvider.sqlite3_config_none(op);
+        }
+
+        int ISQLite3Provider.sqlite3_config(int op, int val)
+        {
+            return SQLite3RuntimeProvider.sqlite3_config_int(op, val);
+        }
+
+        int ISQLite3Provider.sqlite3_enable_load_extension(IntPtr db, int onoff)
+        {
+            return SQLite3RuntimeProvider.sqlite3_enable_load_extension(db.ToInt64(), onoff);
+        }
+
         long ISQLite3Provider.sqlite3_memory_used()
         {
             return SQLite3RuntimeProvider.sqlite3_memory_used();
@@ -1071,6 +1159,36 @@ namespace SQLitePCL
             return util.from_utf8(new IntPtr(SQLite3RuntimeProvider.sqlite3_value_text(p.ToInt64())));
         }
 
+        int ISQLite3Provider.sqlite3_blob_open(IntPtr db, byte[] db_utf8, byte[] table_utf8, byte[] col_utf8, long rowid, int flags, out IntPtr blob)
+        {
+            // TODO null string?
+            GCHandle sdb_pinned = GCHandle.Alloc(db_utf8, GCHandleType.Pinned);
+            IntPtr sdb_ptr = sdb_pinned.AddrOfPinnedObject();
+
+            // TODO null string?
+            GCHandle table_pinned = GCHandle.Alloc(table_utf8, GCHandleType.Pinned);
+            IntPtr table_ptr = table_pinned.AddrOfPinnedObject();
+
+            // TODO null string?
+            GCHandle col_pinned = GCHandle.Alloc(col_utf8, GCHandleType.Pinned);
+            IntPtr col_ptr = col_pinned.AddrOfPinnedObject();
+
+            byte[] buf8 = new byte[8];
+            GCHandle buf8_pinned = GCHandle.Alloc(buf8, GCHandleType.Pinned);
+            IntPtr buf8_ptr = buf8_pinned.AddrOfPinnedObject();
+
+            int result = SQLite3RuntimeProvider.sqlite3_blob_open(db.ToInt64(), sdb_ptr.ToInt64(), table_ptr.ToInt64(), col_ptr.ToInt64(), rowid, flags, buf8_ptr.ToInt64());
+
+            sdb_pinned.Free();
+            table_pinned.Free();
+            col_pinned.Free();
+
+            blob = new IntPtr(Marshal.ReadInt64(buf8_ptr));
+            buf8_pinned.Free();
+
+            return result;
+        }
+
         int ISQLite3Provider.sqlite3_blob_open(IntPtr db, string sdb, string table, string col, long rowid, int flags, out IntPtr blob)
         {
             // TODO null string?
@@ -1212,9 +1330,14 @@ namespace SQLitePCL
 
         int ISQLite3Provider.sqlite3_bind_blob(IntPtr stm, int paramIndex, byte[] blob)
         {
+            return ((ISQLite3Provider)this).sqlite3_bind_blob(stm, paramIndex, blob, blob.Length);
+        }
+
+        int ISQLite3Provider.sqlite3_bind_blob(IntPtr stm, int paramIndex, byte[] blob, int nSize)
+        {
             GCHandle pinned = GCHandle.Alloc(blob, GCHandleType.Pinned);
             IntPtr ptr = pinned.AddrOfPinnedObject();
-            int rc = SQLite3RuntimeProvider.sqlite3_bind_blob(stm.ToInt64(), paramIndex, ptr.ToInt64(), blob.Length, -1);
+            int rc = SQLite3RuntimeProvider.sqlite3_bind_blob(stm.ToInt64(), paramIndex, ptr.ToInt64(), nSize, -1);
             pinned.Free();
             return rc;
         }
@@ -1301,6 +1424,27 @@ namespace SQLitePCL
             byte[] result = new byte[length];
             Marshal.Copy(blobPointer, (byte[])result, 0, length);
             return result;
+        }
+
+        int ISQLite3Provider.sqlite3_column_blob(IntPtr stm, int columnIndex, byte[] result, int offset)
+        {
+            if (result == null || offset >= result.Length)
+            {
+                return raw.SQLITE_ERROR;
+            }
+            IntPtr blobPointer = new IntPtr(SQLite3RuntimeProvider.sqlite3_column_blob(stm.ToInt64(), columnIndex));
+            if (blobPointer == IntPtr.Zero)
+            {
+                return raw.SQLITE_ERROR;
+            }
+
+            var length = SQLite3RuntimeProvider.sqlite3_column_bytes(stm.ToInt64(), columnIndex);
+            if (offset + length > result.Length)
+            {
+                return raw.SQLITE_ERROR;
+            }
+            Marshal.Copy(blobPointer, (byte[])result, offset, length);
+            return raw.SQLITE_OK;
         }
 
         int ISQLite3Provider.sqlite3_column_type(IntPtr stm, int columnIndex)
@@ -1404,5 +1548,11 @@ namespace SQLitePCL
 
             return result;
         }
+
+        int ISQLite3Provider.sqlite3_win32_set_directory(int typ, string path)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

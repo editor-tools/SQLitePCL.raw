@@ -1,5 +1,5 @@
 /*
-   Copyright 2014-2015 Zumero, LLC
+   Copyright 2014-2016 Zumero, LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ namespace SQLitePCL
 {
     using System;
 
+    public delegate void delegate_log(object user_data, int errorCode, string msg);
+    public delegate int delegate_authorizer(object user_data, int action_code, string param0, string param1, string dbName, string inner_most_trigger_or_view);
     public delegate int delegate_commit(object user_data);
     public delegate void delegate_rollback(object user_data);
     public delegate void delegate_trace(object user_data, string statement);
@@ -92,8 +94,9 @@ namespace SQLitePCL
 
         void sqlite3_interrupt(IntPtr db);
 
-	int sqlite3__vfs__delete(string vfs, string pathname, int syncDir);
+        int sqlite3__vfs__delete(string vfs, string pathname, int syncDir);
 
+        int sqlite3_threadsafe();
         string sqlite3_libversion();
         int sqlite3_libversion_number();
         string sqlite3_sourceid();
@@ -128,6 +131,7 @@ namespace SQLitePCL
         int sqlite3_bind_zeroblob(IntPtr stmt, int index, int size);
         string sqlite3_bind_parameter_name(IntPtr stmt, int index);
         int sqlite3_bind_blob(IntPtr stmt, int index, byte[] blob);
+        int sqlite3_bind_blob(IntPtr stmt, int index, byte[] blob, int nSize);
         int sqlite3_bind_double(IntPtr stmt, int index, double val);
         int sqlite3_bind_int(IntPtr stmt, int index, int val);
         int sqlite3_bind_int64(IntPtr stmt, int index, long val);
@@ -147,6 +151,7 @@ namespace SQLitePCL
         int sqlite3_column_int(IntPtr stmt, int index);
         long sqlite3_column_int64(IntPtr stmt, int index);
         byte[] sqlite3_column_blob(IntPtr stmt, int index);
+        int sqlite3_column_blob(IntPtr stm, int columnIndex, byte[] result, int offset);
         int sqlite3_column_bytes(IntPtr stmt, int index);
         int sqlite3_column_type(IntPtr stmt, int index);
         string sqlite3_column_decltype(IntPtr stmt, int index);
@@ -157,6 +162,7 @@ namespace SQLitePCL
         int sqlite3_backup_remaining(IntPtr backup);
         int sqlite3_backup_pagecount(IntPtr backup);
 
+        int sqlite3_blob_open(IntPtr db, byte[] db_utf8, byte[] table_utf8, byte[] col_utf8, long rowid, int flags, out IntPtr blob);
         int sqlite3_blob_open(IntPtr db, string sdb, string table, string col, long rowid, int flags, out IntPtr blob);
         int sqlite3_blob_bytes(IntPtr blob);
         int sqlite3_blob_close(IntPtr blob);
@@ -167,6 +173,7 @@ namespace SQLitePCL
         int sqlite3_blob_write(IntPtr blob, byte[] b, int bOffset, int n, int offset);
         int sqlite3_blob_read(IntPtr blob, byte[] b, int bOffset, int n, int offset); // TODO return blob[] ?
 
+        int sqlite3_config_log(delegate_log func, object v);
         void sqlite3_commit_hook(IntPtr db, delegate_commit func, object v);
         void sqlite3_rollback_hook(IntPtr db, delegate_rollback func, object v);
         void sqlite3_trace(IntPtr db, delegate_trace func, object v);
@@ -176,6 +183,8 @@ namespace SQLitePCL
         int sqlite3_create_collation(IntPtr db, string name, object v, delegate_collation func);
         int sqlite3_create_function(IntPtr db, string name, int nArg, object v, delegate_function_scalar func);
         int sqlite3_create_function(IntPtr db, string name, int nArg, object v, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final);
+        int sqlite3_create_function(IntPtr db, string name, int nArg, int flags, object v, delegate_function_scalar func);
+        int sqlite3_create_function(IntPtr db, string name, int nArg, int flags, object v, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final);
 
         int sqlite3_db_status(IntPtr db, int op, out int current, out int highest, int resetFlg);
 
@@ -216,6 +225,8 @@ namespace SQLitePCL
 
         int sqlite3_table_column_metadata(IntPtr db, string dbName, string tblName, string colName, out string dataType, out string collSeq, out int notNull, out int primaryKey, out int autoInc);
 
+        int sqlite3_set_authorizer(IntPtr db, delegate_authorizer authorizer, object user_data);
+
 #if not // maybe never
 
         // because the wp8 C++ layer wouldn't link unless built against sqlcipher
@@ -239,7 +250,6 @@ namespace SQLitePCL
 
         // because these are inherently non-portable, and because the SQLite module
         // for WP8 doesn't even compile them in.
-        int sqlite3_enable_load_extension(IntPtr db, int enable);
         int sqlite3_load_extension(IntPtr db, byte[] fileName, byte[] procName, ref IntPtr pError);
 
         // TODO
@@ -247,18 +257,15 @@ namespace SQLitePCL
         int sqlite3_file_control(IntPtr db, byte[] zDbName, int op, IntPtr pArg);
 #endif
 
-#if not
-        // Since sqlite3_config() takes a variable argument list, we have to overload declarations
-        // for all possible calls that we want to use.
+        int sqlite3_initialize();
+        int sqlite3_shutdown();
 
-        int sqlite3_config_none(int op);
-        int sqlite3_config_int(int op, int val);
+        // sqlite3_config() takes a variable argument list
+        int sqlite3_config(int op);
+        int sqlite3_config(int op, int val);
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void callback_log(IntPtr pUserData, int errorCode, IntPtr pMessage);
+        int sqlite3_enable_load_extension(IntPtr db, int enable);
 
-        int sqlite3_config_log(int op, callback_log func, IntPtr pvUser);
-#endif
 
 #if not // utf16 versions, not needed since we're using utf8 everywhere
         IntPtr sqlite3_column_database_name16(IntPtr stmt, int index);
@@ -282,6 +289,7 @@ namespace SQLitePCL
         void sqlite3_log(int iErrCode, byte[] zFormat);
 #endif
 
+        int sqlite3_win32_set_directory(int typ, string path);
     }
 }
 

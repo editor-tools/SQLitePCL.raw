@@ -1,5 +1,5 @@
 /*
-   Copyright 2014-2015 Zumero, LLC
+   Copyright 2014-2016 Zumero, LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -102,6 +102,12 @@ namespace SQLitePCL
 					static int64 sqlite3_sourceid();
 
 					static int32 sqlite3_libversion_number();
+					static int32 sqlite3_threadsafe();
+					static int32 sqlite3_initialize();
+					static int32 sqlite3_shutdown();
+					static int32 sqlite3_config_none(int32 op);
+					static int32 sqlite3_config_int(int32 op, int32 val);
+					static int32 sqlite3_enable_load_extension(int64 db, int32 onoff);
 
 					static int64 sqlite3_memory_used();
 					static int64 sqlite3_memory_highwater(int32 resetFlag);
@@ -211,6 +217,8 @@ namespace SQLitePCL
 					static int32 sqlite3_wal_checkpoint_v2(int64 db, int64 dbName, int32 eMode, int64 logSize, int64 framesCheckPointed);
 
 					static int32 sqlite3_stmt_status(int64 stmHandle, int32 op, int32 resetFlg);
+	
+					static int32 sqlite3_set_authorizer(int64 db, int64 func, int64 v);
 
 				};
 	}

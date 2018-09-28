@@ -1,5 +1,5 @@
 /*
-   Copyright 2014-2015 Zumero, LLC
+   Copyright 2014-2016 Zumero, LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -322,6 +322,36 @@ int32 SQLite3RuntimeProvider::sqlite3_status(int32 op, int64 current, int64 high
 	}
 
 	return result;
+}
+
+int32 SQLite3RuntimeProvider::sqlite3_threadsafe(void)
+{
+	return (int32)::sqlite3_threadsafe();
+}
+
+int32 SQLite3RuntimeProvider::sqlite3_initialize(void)
+{
+	return (int32)::sqlite3_initialize();
+}
+
+int32 SQLite3RuntimeProvider::sqlite3_shutdown(void)
+{
+	return (int32)::sqlite3_shutdown();
+}
+
+int32 SQLite3RuntimeProvider::sqlite3_config_none(int32 op)
+{
+	return (int32)::sqlite3_config(op);
+}
+
+int32 SQLite3RuntimeProvider::sqlite3_config_int(int32 op, int32 val)
+{
+	return (int32)::sqlite3_config(op, val);
+}
+
+int32 SQLite3RuntimeProvider::sqlite3_enable_load_extension(int64 db, int32 onoff)
+{
+	return (int32)::sqlite3_enable_load_extension((sqlite3*) db, onoff);
 }
 
 int32 SQLite3RuntimeProvider::sqlite3_libversion_number(void)
@@ -737,4 +767,8 @@ int32 SQLite3RuntimeProvider::sqlite3_wal_checkpoint_v2(int64 db, int64 dbName, 
 
 	return result;
 }
-    
+
+int32 SQLite3RuntimeProvider::sqlite3_set_authorizer(int64 db, int64 func, int64 v)
+{
+	return ::sqlite3_set_authorizer((sqlite3*)db, (int(*)(void*,int,const char*,const char*,const char*,const char*)) func, (void*)v); 
+}    
