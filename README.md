@@ -6,9 +6,11 @@ access to SQLite.
 
 ## Building
 
-* Compile and run gen_build
-* Compile the generated solution bld/sqlitepcl.sln
-* Package the nuspec with nuget/NuGet.exe pack SQLitePCL.raw_basic.nuspec or SQLitePCL.raw.nuspec
+* If needed, bump the version in https://github.com/ericsink/SQLitePCL.raw/blob/31522a2091616a52107b07f4e418a43ac9ff5f9f/gen_build.cs#L2027 and add the release notes that will go into the nuget package.
+* Compile `gen_build` by running `msbuild gen_build.sln` (or compiling in VS)
+* Run `gen_build`. This will generate the build system in the `bld` directory
+* Compile the generated solution: `bld\sqlitepcl.sln`
+* Package the nuspec with `nuget\NuGet.exe pack SQLitePCL.raw.nuspec` or `nuget\NuGet.exe pack SQLitePCL.raw_basic.nuspec`, depending on which package you want.
 
 ## Is this open source?
 
